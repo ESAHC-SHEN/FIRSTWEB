@@ -78,7 +78,7 @@ img{display:block;max-width:100%}
 .site-header{
   max-width:var(--maxw);
   margin:0 auto;
-  padding:76px 24px 44px;
+  padding:76px 24px 40px;
 }
 
 .profile{
@@ -115,12 +115,15 @@ img{display:block;max-width:100%}
   line-height:1.75;
 }
 
+/* ---- 社交 / 联系方式 ---- */
 .socials{
   display:flex;
   gap:6px;
   flex-wrap:wrap;
+  align-items:center;
 }
-.socials a{
+.socials a,
+.socials .social-text{
   font-size:13px;
   color:var(--text-muted);
   text-decoration:none;
@@ -134,6 +137,17 @@ img{display:block;max-width:100%}
   color:var(--accent);
   border-color:var(--accent);
   transform:translateY(-1px);
+}
+/* 邮箱：仅展示，不可点击 */
+.socials .social-text{
+  cursor:default;
+  -webkit-user-select:text;
+  user-select:text;
+  font-variant-numeric:tabular-nums;
+}
+.socials .social-text:hover{
+  color:var(--accent);
+  border-color:var(--accent);
 }
 
 /* 主题切换 */
@@ -161,6 +175,78 @@ img{display:block;max-width:100%}
 .theme-toggle .icon-moon{display:none}
 [data-theme="dark"] .theme-toggle .icon-sun{display:none}
 [data-theme="dark"] .theme-toggle .icon-moon{display:block}
+
+/* ============ 实时状态条（时间 / 天气） ============ */
+.status-bar{
+  max-width:var(--maxw);
+  margin:0 auto 26px;
+  padding:0 24px;
+}
+
+.status-inner{
+  display:flex;
+  align-items:center;
+  gap:24px;
+  flex-wrap:wrap;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:15px 26px;
+  box-shadow:var(--shadow);
+}
+
+.status-group{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  min-width:0;
+}
+
+.status-svg{
+  width:22px;
+  height:22px;
+  color:var(--accent);
+  flex-shrink:0;
+}
+
+.status-icon{
+  font-size:20px;
+  line-height:1;
+  width:22px;
+  text-align:center;
+  flex-shrink:0;
+}
+
+.status-text{
+  display:flex;
+  flex-direction:column;
+  line-height:1.4;
+  min-width:0;
+}
+
+.status-text strong{
+  font-size:16px;
+  font-weight:600;
+  font-variant-numeric:tabular-nums;
+  letter-spacing:.01em;
+  white-space:nowrap;
+  color:var(--text);
+}
+
+.status-text small{
+  font-size:12.5px;
+  color:var(--text-muted);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.status-sep{
+  width:1px;
+  height:32px;
+  background:var(--border);
+  flex-shrink:0;
+}
 
 /* ============ 筛选 ============ */
 .filters{
@@ -203,7 +289,8 @@ img{display:block;max-width:100%}
   grid-template-columns:repeat(auto-fill,minmax(272px,1fr));
   gap:22px;
   align-items:start;
-}
+}line-clamp:2;
+  
 
 .card{
   position:relative;
@@ -289,7 +376,6 @@ img{display:block;max-width:100%}
   color:var(--text-muted);
   display:-webkit-box;
   -webkit-line-clamp:2;
-  line-clamp:2;
   -webkit-box-orient:vertical;
   overflow:hidden;
 }
@@ -380,15 +466,9 @@ img{display:block;max-width:100%}
   font-size:13px;
 }
 .site-footer p{margin:0}
-.site-footer a{
-  color:var(--text-muted);
-  text-decoration:none;
-  border-bottom:1px solid transparent;
-  transition:color .2s,border-color .2s;
-}
-.site-footer a:hover{
-  color:var(--accent);
-  border-color:var(--accent);
+.site-footer .foot-mail{
+  -webkit-user-select:text;
+  user-select:text;
 }
 
 /* ============ 灯箱 ============ */
@@ -446,10 +526,17 @@ img{display:block;max-width:100%}
 
 /* ============ 响应式 ============ */
 @media (max-width:720px){
-  .site-header{padding:52px 20px 32px}
+  .site-header{padding:52px 20px 30px}
   .profile{gap:18px;align-items:flex-start}
   .avatar{width:70px;height:70px}
   .theme-toggle{top:-6px;right:0;width:36px;height:36px}
+
+  .status-bar{padding:0 20px;margin-bottom:20px}
+  .status-inner{gap:16px;padding:14px 18px}
+  .status-sep{display:none}
+  .status-group{flex:1 1 auto}
+  .status-text strong{font-size:15px}
+
   .filters{padding:0 20px;margin-bottom:22px}
   .feed{padding:0 20px 72px;grid-template-columns:1fr;gap:18px}
   .card--article{grid-column:span 1}
@@ -482,7 +569,7 @@ img{display:block;max-width:100%}
         <nav class="socials">
           <a href="https://github.com/ESAHC-SHEN" target="_blank" rel="noopener noreferrer">GitHub</a>
           <a href="https://space.bilibili.com/349922207?spm_id_from=333.1007.0.0" target="_blank" rel="noopener noreferrer">B 站</a>
-          <a href="mailto:247556861@qq.com">邮箱</a>
+          <span class="social-text" title="我的邮箱（可选中复制）">247556861@qq.com</span>
         </nav>
       </div>
 
@@ -497,6 +584,37 @@ img{display:block;max-width:100%}
       </button>
     </div>
   </header>
+
+  <!-- ============ 实时状态条：时间 · 天气 ============ -->
+  <section class="status-bar" aria-label="实时时间与天气">
+    <div class="status-inner">
+
+      <!-- 时间 -->
+      <div class="status-group">
+        <svg class="status-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="9"/>
+          <path d="M12 7v5.2l3.2 1.9"/>
+        </svg>
+        <div class="status-text">
+          <strong id="clockTime">--:--:--</strong>
+          <small id="clockDate">加载中…</small>
+        </div>
+      </div>
+
+      <span class="status-sep" aria-hidden="true"></span>
+
+      <!-- 天气 -->
+      <div class="status-group">
+        <span class="status-icon" id="weatherIcon" aria-hidden="true">⏳</span>
+        <div class="status-text">
+          <strong id="weatherMain">--°C</strong>
+          <small id="weatherSub">正在获取天气…</small>
+        </div>
+      </div>
+
+    </div>
+  </section>
 
   <!-- ============ 筛选 ============ -->
   <nav class="filters" id="filters">
@@ -653,7 +771,7 @@ img{display:block;max-width:100%}
 
   <!-- ============ 页脚 ============ -->
   <footer class="site-footer">
-    <p>© <span id="year">2024</span> 言一 · <a href="mailto:247556861@qq.com">247556861@qq.com</a></p>
+    <p>© <span id="year">2024</span> 言一 · <span class="foot-mail">247556861@qq.com</span></p>
   </footer>
 
 </div>
@@ -668,7 +786,9 @@ img{display:block;max-width:100%}
 (function () {
   'use strict';
 
-  /* ---------- 1. 主题切换 ---------- */
+  /* =========================================================
+     1. 主题切换
+     ========================================================= */
   const root = document.documentElement;
   const toggle = document.getElementById('themeToggle');
 
@@ -685,7 +805,149 @@ img{display:block;max-width:100%}
     localStorage.setItem('theme', next);
   });
 
-  /* ---------- 2. 筛选 ---------- */
+  /* =========================================================
+     2. 实时时钟
+     ========================================================= */
+  const clockTimeEl = document.getElementById('clockTime');
+  const clockDateEl = document.getElementById('clockDate');
+  const WEEKDAYS = ['日', '一', '二', '三', '四', '五', '六'];
+
+  function pad(n) { return String(n).padStart(2, '0'); }
+
+  function updateClock() {
+    const now = new Date();
+    clockTimeEl.textContent =
+      pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
+
+    clockDateEl.textContent =
+      now.getFullYear() + ' 年 ' + (now.getMonth() + 1) + ' 月 ' + now.getDate() + ' 日' +
+      ' · 星期' + WEEKDAYS[now.getDay()];
+  }
+
+  updateClock();
+  setInterval(updateClock, 1000);
+
+  /* =========================================================
+     3. 天气模块（Open-Meteo · 免费无需 API Key）
+
+     ▸ 想固定显示某个城市，直接改 DEFAULT_LOCATION 即可。
+       常用坐标参考：
+         北京 39.9042, 116.4074   上海 31.2304, 121.4737
+         杭州 30.2741, 120.1551   深圳 22.5431, 114.0579
+     ========================================================= */
+  const DEFAULT_LOCATION = { lat: 30.2741, lon: 120.1551, name: '杭州' };
+
+  const weatherIconEl = document.getElementById('weatherIcon');
+  const weatherMainEl = document.getElementById('weatherMain');
+  const weatherSubEl  = document.getElementById('weatherSub');
+
+  // WMO 天气代码 → 中文描述 + 图标
+  const WMO = {
+    0:  { t: '晴',           i: '☀️' },
+    1:  { t: '晴间多云',     i: '🌤️' },
+    2:  { t: '多云',         i: '⛅' },
+    3:  { t: '阴',           i: '☁️' },
+    45: { t: '雾',           i: '🌫️' },
+    48: { t: '雾凇',         i: '🌫️' },
+    51: { t: '小毛毛雨',     i: '🌦️' },
+    53: { t: '毛毛雨',       i: '🌦️' },
+    55: { t: '大毛毛雨',     i: '🌧️' },
+    56: { t: '冻毛毛雨',     i: '🌨️' },
+    57: { t: '冻毛毛雨',     i: '🌨️' },
+    61: { t: '小雨',         i: '🌦️' },
+    63: { t: '中雨',         i: '🌧️' },
+    65: { t: '大雨',         i: '🌧️' },
+    66: { t: '冻雨',         i: '🌨️' },
+    67: { t: '冻雨',         i: '🌨️' },
+    71: { t: '小雪',         i: '🌨️' },
+    73: { t: '中雪',         i: '🌨️' },
+    75: { t: '大雪',         i: '❄️' },
+    77: { t: '雪粒',         i: '❄️' },
+    80: { t: '小阵雨',       i: '🌦️' },
+    81: { t: '阵雨',         i: '🌧️' },
+    82: { t: '强阵雨',       i: '⛈️' },
+    85: { t: '小阵雪',       i: '🌨️' },
+    86: { t: '大阵雪',       i: '❄️' },
+    95: { t: '雷阵雨',       i: '⛈️' },
+    96: { t: '雷阵雨伴冰雹', i: '⛈️' },
+    99: { t: '雷暴伴冰雹',   i: '⛈️' }
+  };
+
+  function renderWeather(data, placeName) {
+    const cur = data.current;
+    const info = WMO[cur.weather_code] || { t: '未知', i: '❔' };
+
+    weatherIconEl.textContent = info.i;
+    weatherMainEl.textContent = Math.round(cur.temperature_2m) + '°C ' + info.t;
+    weatherSubEl.textContent =
+      placeName + ' · 体感 ' + Math.round(cur.apparent_temperature) + '°C · 湿度 ' + cur.relative_humidity_2m + '%';
+  }
+
+  function renderWeatherError(msg) {
+    weatherIconEl.textContent = '⚠️';
+    weatherMainEl.textContent = '天气不可用';
+    weatherSubEl.textContent = msg || '稍后重试';
+  }
+
+  function fetchWeather(lat, lon, placeName) {
+    const url = 'https://api.open-meteo.com/v1/forecast'
+      + '?latitude=' + lat
+      + '&longitude=' + lon
+      + '&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code'
+      + '&timezone=auto';
+
+    return fetch(url)
+      .then(function (res) {
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return res.json();
+      })
+      .then(function (data) {
+        renderWeather(data, placeName);
+      })
+      .catch(function () {
+        renderWeatherError('网络异常，请稍后刷新');
+      });
+  }
+
+  function initWeather() {
+    // 优先尝试浏览器定位，失败或超时则回退到默认城市
+    if (navigator.geolocation) {
+      let settled = false;
+
+      const fallbackTimer = setTimeout(function () {
+        if (!settled) {
+          settled = true;
+          fetchWeather(DEFAULT_LOCATION.lat, DEFAULT_LOCATION.lon, DEFAULT_LOCATION.name);
+        }
+      }, 4000);
+
+      navigator.geolocation.getCurrentPosition(
+        function (pos) {
+          if (settled) return;
+          settled = true;
+          clearTimeout(fallbackTimer);
+          fetchWeather(pos.coords.latitude, pos.coords.longitude, '当前位置');
+        },
+        function () {
+          if (settled) return;
+          settled = true;
+          clearTimeout(fallbackTimer);
+          fetchWeather(DEFAULT_LOCATION.lat, DEFAULT_LOCATION.lon, DEFAULT_LOCATION.name);
+        },
+        { timeout: 3500, maximumAge: 600000 }
+      );
+    } else {
+      fetchWeather(DEFAULT_LOCATION.lat, DEFAULT_LOCATION.lon, DEFAULT_LOCATION.name);
+    }
+  }
+
+  initWeather();
+  // 每 10 分钟刷新一次天气
+  setInterval(initWeather, 10 * 60 * 1000);
+
+  /* =========================================================
+     4. 内容筛选
+     ========================================================= */
   const filterBtns = document.querySelectorAll('.filter');
   const cards = Array.from(document.querySelectorAll('.card'));
 
@@ -702,9 +964,8 @@ img{display:block;max-width:100%}
         card.classList.toggle('is-hidden', !show);
 
         if (show) {
-          // 重新触发入场动画，并做轻微错峰
           card.classList.remove('enter');
-          void card.offsetWidth; // 强制重排
+          void card.offsetWidth; // 强制重排以重播动画
           card.style.animationDelay = Math.min(index++, 9) * 35 + 'ms';
           card.classList.add('enter');
         }
@@ -712,13 +973,17 @@ img{display:block;max-width:100%}
     });
   });
 
-  /* ---------- 3. 入场动画 ---------- */
+  /* =========================================================
+     5. 入场动画
+     ========================================================= */
   cards.forEach(function (card, i) {
     card.style.animationDelay = Math.min(i, 9) * 45 + 'ms';
     card.classList.add('enter');
   });
 
-  /* ---------- 4. 图片灯箱 ---------- */
+  /* =========================================================
+     6. 图片灯箱
+     ========================================================= */
   const lightbox = document.getElementById('lightbox');
   const lightboxImg = document.getElementById('lightboxImg');
   const lightboxClose = document.getElementById('lightboxClose');
@@ -760,14 +1025,18 @@ img{display:block;max-width:100%}
     }
   });
 
-  /* ---------- 5. 图片加载失败兜底 ---------- */
+  /* =========================================================
+     7. 图片加载失败兜底
+     ========================================================= */
   document.querySelectorAll('.card-cover img, .photo-btn img').forEach(function (img) {
     img.addEventListener('error', function () {
       img.style.display = 'none';
     });
   });
 
-  /* ---------- 6. 页脚年份自动更新 ---------- */
+  /* =========================================================
+     8. 页脚年份自动更新
+     ========================================================= */
   document.getElementById('year').textContent = new Date().getFullYear();
 
 })();
