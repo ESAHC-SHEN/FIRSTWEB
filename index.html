@@ -4,6 +4,18 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>言一 · 写点什么</title>
+
+<!-- 尽早应用主题，避免刷新时闪白 -->
+<script>
+(function(){
+  try{
+    var t = localStorage.getItem('theme');
+    if(!t && window.matchMedia('(prefers-color-scheme: dark)').matches) t = 'dark';
+    if(t) document.documentElement.dataset.theme = t;
+  }catch(e){}
+})();
+</script>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">
@@ -74,11 +86,47 @@ body::before{
 
 img{display:block;max-width:100%}
 
+/* ============ 顶部栏：导航 + 主题 ============ */
+.topbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  margin-bottom:30px;
+}
+
+.site-nav{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+  align-items:center;
+}
+.site-nav a{
+  font-size:13px;
+  color:var(--text-muted);
+  text-decoration:none;
+  padding:5px 12px;
+  border-radius:999px;
+  border:1px solid var(--border);
+  background:var(--surface);
+  transition:color .2s,border-color .2s,transform .2s;
+}
+.site-nav a:hover{
+  color:var(--accent);
+  border-color:var(--accent);
+  transform:translateY(-1px);
+}
+.site-nav a.is-active{
+  color:var(--bg);
+  background:var(--text);
+  border-color:var(--text);
+}
+
 /* ============ 头部 ============ */
 .site-header{
   max-width:var(--maxw);
   margin:0 auto;
-  padding:76px 24px 40px;
+  padding:44px 24px 34px;
 }
 
 .profile{
@@ -152,9 +200,7 @@ img{display:block;max-width:100%}
 
 /* 主题切换 */
 .theme-toggle{
-  position:absolute;
-  top:0;
-  right:0;
+  flex:0 0 auto;
   width:40px;
   height:40px;
   border-radius:50%;
@@ -466,6 +512,16 @@ img{display:block;max-width:100%}
   font-size:13px;
 }
 .site-footer p{margin:0}
+.site-footer a{
+  color:inherit;
+  text-decoration:none;
+  border-bottom:1px solid transparent;
+  transition:color .2s,border-color .2s;
+}
+.site-footer a:hover{
+  color:var(--accent);
+  border-bottom-color:var(--accent);
+}
 .site-footer .foot-mail{
   -webkit-user-select:text;
   user-select:text;
@@ -526,10 +582,11 @@ img{display:block;max-width:100%}
 
 /* ============ 响应式 ============ */
 @media (max-width:720px){
-  .site-header{padding:52px 20px 30px}
+  .site-header{padding:34px 20px 28px}
+  .topbar{margin-bottom:22px}
   .profile{gap:18px;align-items:flex-start}
   .avatar{width:70px;height:70px}
-  .theme-toggle{top:-6px;right:0;width:36px;height:36px}
+  .theme-toggle{width:36px;height:36px}
 
   .status-bar{padding:0 20px;margin-bottom:20px}
   .status-inner{gap:16px;padding:14px 18px}
@@ -560,18 +617,13 @@ img{display:block;max-width:100%}
 
   <!-- ============ 个人头部 ============ -->
   <header class="site-header">
-    <div class="profile">
-      <img class="avatar" src="https://picsum.photos/seed/portrait9/200/200" alt="言一的头像">
 
-      <div class="profile-info">
-        <h1>言一</h1>
-        <p class="bio">设计师，偶尔写代码。在这里放我的长文、碎片，和拍到的光。</p>
-        <nav class="socials">
-          <a href="https://github.com/ESAHC-SHEN" target="_blank" rel="noopener noreferrer">GitHub</a>
-          <a href="https://space.bilibili.com/349922207?spm_id_from=333.1007.0.0" target="_blank" rel="noopener noreferrer">B 站</a>
-          <span class="social-text" title="我的邮箱（可选中复制）">247556861@qq.com</span>
-        </nav>
-      </div>
+    <!-- 顶部栏：导航 + 主题切换 -->
+    <div class="topbar">
+      <nav class="site-nav">
+        <a href="index.html" class="is-active">首页</a>
+        <a href="gallery.html">相片馆</a>
+      </nav>
 
       <button class="theme-toggle" id="themeToggle" aria-label="切换深浅色主题">
         <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
@@ -582,6 +634,21 @@ img{display:block;max-width:100%}
           <path d="M20.5 14.2A8.5 8.5 0 1 1 9.8 3.5a6.8 6.8 0 0 0 10.7 10.7z"/>
         </svg>
       </button>
+    </div>
+
+    <div class="profile">
+      <!-- 图片需与本文件同目录，文件名 avatar.png -->
+      <img class="avatar" src="avatar.png" alt="言一的头像">
+
+      <div class="profile-info">
+        <h1>言一</h1>
+        <p class="bio">设计师，偶尔写代码。在这里放我的长文、碎片，和拍到的光。</p>
+        <nav class="socials">
+          <a href="https://github.com/ESAHC-SHEN" target="_blank" rel="noopener noreferrer">GitHub</a>
+          <a href="https://space.bilibili.com/349922207?spm_id_from=333.1007.0.0" target="_blank" rel="noopener noreferrer">B 站</a>
+          <span class="social-text" title="我的邮箱（可选中复制）">247556861@qq.com</span>
+        </nav>
+      </div>
     </div>
   </header>
 
@@ -771,7 +838,7 @@ img{display:block;max-width:100%}
 
   <!-- ============ 页脚 ============ -->
   <footer class="site-footer">
-    <p>© <span id="year">2024</span> 言一 · <span class="foot-mail">247556861@qq.com</span></p>
+    <p>© <span id="year">2024</span> 言一 · <a href="gallery.html">相片馆</a> · <span class="foot-mail">247556861@qq.com</span></p>
   </footer>
 
 </div>
@@ -792,17 +859,10 @@ img{display:block;max-width:100%}
   const root = document.documentElement;
   const toggle = document.getElementById('themeToggle');
 
-  const saved = localStorage.getItem('theme');
-  if (saved) {
-    root.dataset.theme = saved;
-  } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-    root.dataset.theme = 'dark';
-  }
-
   toggle.addEventListener('click', function () {
     const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
     root.dataset.theme = next;
-    localStorage.setItem('theme', next);
+    try { localStorage.setItem('theme', next); } catch (e) {}
   });
 
   /* =========================================================

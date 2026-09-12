@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>相片馆 · 言一</title>
+
+<!-- 尽早应用主题，避免刷新时闪白 -->
+<script>
+(function(){
+  try{
+    var t = localStorage.getItem('theme');
+    if(!t && window.matchMedia('(prefers-color-scheme: dark)').matches) t = 'dark';
+    if(t) document.documentElement.dataset.theme = t;
+  }catch(e){}
+})();
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+/* ============ 设计变量（与首页一致） ============ */
+*,*::before,*::after{box-sizing:border-box}
+
+:root{
+  --bg:#f7f5f1;
+  --surface:#ffffff;
+  --surface-2:#f0ede7;
+  --text:#1a1917;
+  --text-muted:#7a756d;
+  --border:#e8e4dc;
+  --accent:#c9552f;
+  --accent-soft:#f8e9e3;
+  --radius:18px;
+  --shadow:0 1px 2px rgba(28,27,25,.03),0 4px 16px -8px rgba(28,27,25,.10);
+  --shadow-hover:0 2px 6px rgba(28,27,25,.05),0 22px 44px -22px rgba(28,27,25,.28);
+  --maxw:1100px;
+  --serif:"Noto Serif SC",Georgia,"Songti SC","STSong",serif;
+}
+
+[data-theme="dark"]{
+  --bg:#131215;
+  --surface:#1c1b1f;
+  --surface-2:#26242a;
+  --text:#ece9e3;
+  --text-muted:#948f88;
+  --border:#2b2930;
+  --accent:#e5794f;
+  --accent-soft:#33231c;
+  --shadow:0 1px 2px rgba(0,0,0,.4);
+  --shadow-hover:0 26px 52px -26px rgba(0,0,0,.9);
+}
+
+/* ============ 基础 ============ */
+html{scroll-behavior:smooth}
+
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  line-height:1.7;
+  -webkit-font-smoothing:antialiased;
+  transition:background .35s ease,color .35s ease;
+}
+
+/* 顶部氛围光 */
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  background:
+    radial-gradient(900px 480px at 12% -8%, rgba(201,85,47,.09), transparent 62%),
+    radial-gradient(700px 420px at 92% 4%, rgba(90,130,180,.07), transparent 60%);
+  pointer-events:none;
+  z-index:0;
+}
+[data-theme="dark"] body::before{
+  background:
+    radial-gradient(900px 480px at 12% -8%, rgba(229,121,79,.12), transparent 62%),
+    radial-gradient(700px 420px at 92% 4%, rgba(90,130,180,.10), transparent 60%);
+}
+
+.page{position:relative;z-index:1}
+
+img{display:block;max-width:100%}
+
+/* ============ 顶部栏：导航 + 主题 ============ */
+.topbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  margin-bottom:30px;
+}
+
+.site-nav{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+  align-items:center;
+}
+.site-nav a{
+  font-size:13px;
+  color:var(--text-muted);
+  text-decoration:none;
+  padding:5px 12px;
+  border-radius:999px;
+  border:1px solid var(--border);
+  background:var(--surface);
+  transition:color .2s,border-color .2s,transform .2s;
+}
+.site-nav a:hover{
+  color:var(--accent);
+  border-color:var(--accent);
+  transform:translateY(-1px);
+}
+.site-nav a.is-active{
+  color:var(--bg);
+  background:var(--text);
+  border-color:var(--text);
+}
+
+/* ============ 页头 ============ */
+.site-header{
+  max-width:var(--maxw);
+  margin:0 auto;
+  padding:44px 24px 30px;
+}
+
+.page-title{
+  font-family:var(--serif);
+  font-size:clamp(26px,5vw,36px);
+  font-weight:700;
+  letter-spacing:-.01em;
+  margin:0 0 6px;
+  line-height:1.25;
+}
+
+.page-sub{
+  margin:0;
+  color:var(--text-muted);
+  font-size:15px;
+  max-width:46ch;
+  line-height:1.75;
+}
+
+/* 主题切换 */
+.theme-toggle{
+  flex:0 0 auto;
+  width:40px;
+  height:40px;
+  border-radius:50%;
+  border:1px solid var(--border);
+  background:var(--surface);
+  color:var(--text-muted);
+  cursor:pointer;
+  display:grid;
+  place-items:center;
+  transition:color .25s,border-color .25s,transform .25s,background .25s;
+}
+.theme-toggle:hover{
+  color:var(--accent);
+  border-color:var(--accent);
+  transform:rotate(18deg);
+}
+.theme-toggle svg{width:18px;height:18px}
+.theme-toggle .icon-moon{display:none}
+[data-theme="dark"] .theme-toggle .icon-sun{display:none}
+[data-theme="dark"] .theme-toggle .icon-moon{display:block}
+
+/* ============ 相片网格 ============ */
+.gallery{
+  max-width:var(--maxw);
+  margin:0 auto;
+  padding:0 24px 90px;
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(272px,1fr));
+  gap:22px;
+  align-items:start;
+}
+
+.pic{
+  margin:0;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  overflow:hidden;
+  box-shadow:var(--shadow);
+  transition:transform .4s cubic-bezier(.2,.8,.2,1),
+             box-shadow .4s cubic-bezier(.2,.8,.2,1),
+             border-color .3s;
+}
+.pic:hover{
+  transform:translateY(-4px);
+  border-color:transparent;
+  box-shadow:var(--shadow-hover);
+}
+
+/* 整行通栏（第一张重点照片用这个） */
+.pic--wide{grid-column:1 / -1}
+
+.pic-btn{
+  display:block;
+  width:100%;
+  padding:0;
+  border:0;
+  background:var(--surface-2);
+  cursor:zoom-in;
+  overflow:hidden;
+}
+.pic-btn img{
+  width:100%;
+  aspect-ratio:3/2;
+  object-fit:cover;
+  transition:transform .7s cubic-bezier(.2,.8,.2,1);
+}
+.pic:hover .pic-btn img{transform:scale(1.045)}
+
+/* 竖构图照片：给 <figure> 加 class="pic--portrait" 就会变成 3:4
+.pic--portrait .pic-btn img{aspect-ratio:3/4}
+*/
+
+.pic-cap{
+  display:flex;
+  justify-content:space-between;
+  align-items:baseline;
+  gap:10px;
+  padding:14px 18px 16px;
+  font-size:13.5px;
+  color:var(--text);
+}
+.pic-cap .place{
+  font-size:12px;
+  color:var(--text-muted);
+  opacity:.8;
+  white-space:nowrap;
+}
+
+/* ============ 页脚 ============ */
+.site-footer{
+  max-width:var(--maxw);
+  margin:0 auto;
+  padding:36px 24px 70px;
+  border-top:1px solid var(--border);
+  text-align:center;
+  color:var(--text-muted);
+  font-size:13px;
+}
+.site-footer p{margin:0}
+.site-footer a{
+  color:inherit;
+  text-decoration:none;
+  border-bottom:1px solid transparent;
+  transition:color .2s,border-color .2s;
+}
+.site-footer a:hover{
+  color:var(--accent);
+  border-bottom-color:var(--accent);
+}
+
+/* ============ 灯箱 ============ */
+.lightbox{
+  position:fixed;
+  inset:0;
+  z-index:100;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:48px 76px;
+  background:rgba(10,10,13,.93);
+  -webkit-backdrop-filter:blur(14px);
+  backdrop-filter:blur(14px);
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .32s ease;
+}
+.lightbox.is-open{
+  opacity:1;
+  pointer-events:auto;
+}
+.lightbox img{
+  max-width:100%;
+  max-height:100%;
+  object-fit:contain;
+  border-radius:10px;
+  transform:scale(.95);
+  transition:transform .38s cubic-bezier(.2,.8,.2,1);
+  box-shadow:0 40px 80px -30px rgba(0,0,0,.9);
+}
+.lightbox.is-open img{transform:scale(1)}
+
+.lightbox-close{
+  position:absolute;
+  top:22px;
+  right:26px;
+  width:44px;
+  height:44px;
+  border-radius:50%;
+  border:1px solid rgba(255,255,255,.2);
+  background:rgba(255,255,255,.06);
+  color:#fff;
+  font-size:24px;
+  line-height:1;
+  cursor:pointer;
+  display:grid;
+  place-items:center;
+  transition:background .22s,transform .22s;
+}
+.lightbox-close:hover{
+  background:rgba(255,255,255,.16);
+  transform:rotate(90deg);
+}
+
+.lightbox-nav{
+  position:absolute;
+  top:50%;
+  transform:translateY(-50%);
+  width:48px;
+  height:48px;
+  border-radius:50%;
+  border:1px solid rgba(255,255,255,.18);
+  background:rgba(255,255,255,.06);
+  color:#fff;
+  font-size:26px;
+  line-height:1;
+  cursor:pointer;
+  display:grid;
+  place-items:center;
+  transition:background .22s;
+  -webkit-user-select:none;
+  user-select:none;
+}
+.lightbox-nav:hover{background:rgba(255,255,255,.16)}
+.lightbox-prev{left:18px}
+.lightbox-next{right:18px}
+
+.lightbox-cap{
+  position:absolute;
+  bottom:44px;
+  left:50%;
+  transform:translateX(-50%);
+  color:rgba(255,255,255,.9);
+  font-size:13.5px;
+  max-width:80vw;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.lightbox-count{
+  position:absolute;
+  bottom:20px;
+  left:50%;
+  transform:translateX(-50%);
+  color:rgba(255,255,255,.6);
+  font-size:12.5px;
+  font-variant-numeric:tabular-nums;
+  letter-spacing:.06em;
+}
+
+/* ============ 响应式 ============ */
+@media (max-width:720px){
+  .site-header{padding:34px 20px 26px}
+  .topbar{margin-bottom:22px}
+  .theme-toggle{width:36px;height:36px}
+  .gallery{padding:0 20px 72px;grid-template-columns:1fr;gap:18px}
+  .lightbox{padding:62px 12px}
+  .lightbox-nav{width:40px;height:40px;font-size:22px}
+  .lightbox-prev{left:8px}
+  .lightbox-next{right:8px}
+  .lightbox-cap{bottom:40px;font-size:13px}
+}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:.01ms !important;
+    transition-duration:.01ms !important;
+    scroll-behavior:auto !important;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="page">
+
+  <!-- ============ 页头 ============ -->
+  <header class="site-header">
+    <div class="topbar">
+      <nav class="site-nav">
+        <a href="index.html">首页</a>
+        <a href="gallery.html" class="is-active">相片馆</a>
+      </nav>
+
+      <button class="theme-toggle" id="themeToggle" aria-label="切换深浅色主题">
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+          <circle cx="12" cy="12" r="4.2"/>
+          <path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.2 5.2l1.4 1.4M17.4 17.4l1.4 1.4M18.8 5.2l-1.4 1.4M6.6 17.4l-1.4 1.4"/>
+        </svg>
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20.5 14.2A8.5 8.5 0 1 1 9.8 3.5a6.8 6.8 0 0 0 10.7 10.7z"/>
+        </svg>
+      </button>
+    </div>
+
+    <h1 class="page-title">相片馆</h1>
+    <p class="page-sub">按下快门的那些瞬间。点开可以看大图。</p>
+  </header>
+
+  <!-- ============ 相片列表 ============
+       加新照片：复制一个 <figure class="pic"> 整块，改
+       src / alt / 标题 / 地点 即可。
+       通栏大图：class="pic pic--wide"
+       竖构图：  class="pic pic--portrait"
+       缩略图与原件分离：在 <img> 上加 data-full="photos/full/x.jpg"
+  ====================================== -->
+  <main class="gallery" id="gallery">
+
+    <!-- 1 灯下游园（通栏大图，原图 3:2，不会被裁切） -->
+    <figure class="pic pic--wide">
+      <button class="pic-btn" type="button" aria-label="放大查看：灯下游园">
+        <img src="photos/gallery-01.jpg" alt="灯下游园">
+      </button>
+      <figcaption class="pic-cap">
+        <span>灯下游园</span>
+        <span class="place">杭州</span>
+      </figcaption>
+    </figure>
+
+  </main>
+
+  <!-- ============ 页脚 ============ -->
+  <footer class="site-footer">
+    <p>© <span id="year">2024</span> 言一 · <a href="index.html">回到首页</a></p>
+  </footer>
+
+</div>
+
+<!-- ============ 灯箱 ============ -->
+<div class="lightbox" id="lightbox" aria-hidden="true" role="dialog" aria-modal="true" aria-label="图片放大查看">
+  <button class="lightbox-close" id="lightboxClose" aria-label="关闭">×</button>
+  <button class="lightbox-nav lightbox-prev" id="lightboxPrev" aria-label="上一张">‹</button>
+  <img id="lightboxImg" src="" alt="">
+  <button class="lightbox-nav lightbox-next" id="lightboxNext" aria-label="下一张">›</button>
+  <div class="lightbox-cap" id="lightboxCap"></div>
+  <div class="lightbox-count" id="lightboxCount"></div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* =========================================================
+     1. 主题切换（与首页共用 key = 'theme'）
+     ========================================================= */
+  const root = document.documentElement;
+  const toggle = document.getElementById('themeToggle');
+
+  toggle.addEventListener('click', function () {
+    const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+    root.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch (e) {}
+  });
+
+  /* =========================================================
+     2. 收集照片清单
+     ========================================================= */
+  const figures = Array.from(document.querySelectorAll('.pic'));
+
+  const photos = figures.map(function (fig) {
+    const img = fig.querySelector('img');
+    const cap = fig.querySelector('.pic-cap');
+    const placeEl = cap ? cap.querySelector('.place') : null;
+
+    let title = '';
+    if (cap) {
+      // 取 caption 里除 .place 以外的文字当标题
+      const clone = cap.cloneNode(true);
+      const p = clone.querySelector('.place');
+      if (p) p.remove();
+      title = clone.textContent.trim();
+    }
+
+    return {
+      // 在 <img> 上加 data-full="photos/full/大图.jpg" 可指定灯箱用的大图
+      full: (img && img.getAttribute('data-full')) || (img && img.getAttribute('src')) || '',
+      alt: (img && img.getAttribute('alt')) || '',
+      title: title,
+      place: placeEl ? placeEl.textContent.trim() : ''
+    };
+  });
+
+  /* =========================================================
+     3. 灯箱
+     ========================================================= */
+  const lightbox = document.getElementById('lightbox');
+  const lightboxImg = document.getElementById('lightboxImg');
+  const lightboxCap = document.getElementById('lightboxCap');
+  const lightboxCount = document.getElementById('lightboxCount');
+  const lightboxClose = document.getElementById('lightboxClose');
+  const lightboxPrev = document.getElementById('lightboxPrev');
+  const lightboxNext = document.getElementById('lightboxNext');
+
+  let current = 0;
+  let lastFocused = null;
+
+  // 只有一张照片时隐藏左右箭头
+  if (photos.length <= 1) {
+    lightboxPrev.style.display = 'none';
+    lightboxNext.style.display = 'none';
+  }
+
+  function render(i) {
+    if (!photos.length) return;
+    current = (i % photos.length + photos.length) % photos.length;
+
+    const p = photos[current];
+    lightboxImg.src = p.full;
+    lightboxImg.alt = p.alt;
+
+    lightboxCap.textContent = [p.title, p.place].filter(Boolean).join(' · ');
+    lightboxCount.textContent = photos.length > 1 ? (current + 1) + ' / ' + photos.length : '';
+  }
+
+  function openLightbox(i) {
+    if (!photos.length) return;
+    lastFocused = document.activeElement;
+    render(i);
+    lightbox.classList.add('is-open');
+    lightbox.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    lightboxClose.focus();
+  }
+
+  function closeLightbox() {
+    lightbox.classList.remove('is-open');
+    lightbox.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    lightboxImg.src = '';
+    if (lastFocused && lastFocused.focus) lastFocused.focus();
+  }
+
+  figures.forEach(function (fig, i) {
+    const btn = fig.querySelector('.pic-btn') || fig;
+    btn.addEventListener('click', function () { openLightbox(i); });
+  });
+
+  lightboxClose.addEventListener('click', closeLightbox);
+
+  lightboxPrev.addEventListener('click', function (e) {
+    e.stopPropagation();
+    render(current - 1);
+  });
+
+  lightboxNext.addEventListener('click', function (e) {
+    e.stopPropagation();
+    render(current + 1);
+  });
+
+  // 点击背景关闭
+  lightbox.addEventListener('click', function (e) {
+    if (e.target === lightbox) closeLightbox();
+  });
+
+  // 键盘
+  document.addEventListener('keydown', function (e) {
+    if (!lightbox.classList.contains('is-open')) return;
+    if (e.key === 'Escape') {
+      closeLightbox();
+    } else if (e.key === 'ArrowLeft') {
+      render(current - 1);
+    } else if (e.key === 'ArrowRight') {
+      render(current + 1);
+    }
+  });
+
+  // 手机左右滑动切换
+  let touchStartX = 0;
+  lightbox.addEventListener('touchstart', function (e) {
+    touchStartX = e.changedTouches[0].clientX;
+  }, { passive: true });
+
+  lightbox.addEventListener('touchend', function (e) {
+    if (photos.length < 2) return;
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    if (Math.abs(dx) > 50) render(dx < 0 ? current + 1 : current - 1);
+  }, { passive: true });
+
+  /* =========================================================
+     4. 图片加载失败兜底
+     ========================================================= */
+  document.querySelectorAll('.pic-btn img').forEach(function (img) {
+    img.addEventListener('error', function () {
+      img.style.display = 'none';
+      const btn = img.parentElement;
+      if (btn) {
+        btn.style.display = 'grid';
+        btn.style.placeItems = 'center';
+        btn.style.minHeight = '180px';
+        btn.style.fontSize = '13px';
+        btn.style.color = 'var(--text-muted)';
+        btn.textContent = '图片加载失败：请检查 photos/gallery-01.jpg 是否存在';
+      }
+    });
+  });
+
+  /* =========================================================
+     5. 页脚年份自动更新
+     ========================================================= */
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+})();
+</script>
+
+</body>
+</html>
