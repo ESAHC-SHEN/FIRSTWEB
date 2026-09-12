@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>林一 · 写点什么</title>
+<title>言一 · 写点什么</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">
@@ -380,6 +380,16 @@ img{display:block;max-width:100%}
   font-size:13px;
 }
 .site-footer p{margin:0}
+.site-footer a{
+  color:var(--text-muted);
+  text-decoration:none;
+  border-bottom:1px solid transparent;
+  transition:color .2s,border-color .2s;
+}
+.site-footer a:hover{
+  color:var(--accent);
+  border-color:var(--accent);
+}
 
 /* ============ 灯箱 ============ */
 .lightbox{
@@ -464,16 +474,15 @@ img{display:block;max-width:100%}
   <!-- ============ 个人头部 ============ -->
   <header class="site-header">
     <div class="profile">
-      <img class="avatar" src="https://picsum.photos/seed/portrait9/200/200" alt="林一的头像">
+      <img class="avatar" src="https://picsum.photos/seed/portrait9/200/200" alt="言一的头像">
 
       <div class="profile-info">
-        <h1>林一</h1>
+        <h1>言一</h1>
         <p class="bio">设计师，偶尔写代码。在这里放我的长文、碎片，和拍到的光。</p>
         <nav class="socials">
-          <a href="#">GitHub</a>
-          <a href="#">微博</a>
-          <a href="#">邮件</a>
-          <a href="#">RSS</a>
+          <a href="https://github.com/ESAHC-SHEN" target="_blank" rel="noopener noreferrer">GitHub</a>
+          <a href="https://space.bilibili.com/349922207?spm_id_from=333.1007.0.0" target="_blank" rel="noopener noreferrer">B 站</a>
+          <a href="mailto:247556861@qq.com">邮箱</a>
         </nav>
       </div>
 
@@ -644,7 +653,7 @@ img{display:block;max-width:100%}
 
   <!-- ============ 页脚 ============ -->
   <footer class="site-footer">
-    <p>© 2024 林一 · 用好奇心维持生活</p>
+    <p>© <span id="year">2024</span> 言一 · <a href="mailto:247556861@qq.com">247556861@qq.com</a></p>
   </footer>
 
 </div>
@@ -757,6 +766,9 @@ img{display:block;max-width:100%}
       img.style.display = 'none';
     });
   });
+
+  /* ---------- 6. 页脚年份自动更新 ---------- */
+  document.getElementById('year').textContent = new Date().getFullYear();
 
 })();
 </script>
