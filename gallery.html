@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>相片馆 · 言一</title>
 
-<!-- 尽早应用主题，避免刷新时闪白 -->
 <script>
 (function(){
   try{
@@ -20,7 +19,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-/* ============ 设计变量（与首页一致） ============ */
+/* ============ 设计变量 ============ */
 *,*::before,*::after{box-sizing:border-box}
 
 :root{
@@ -65,7 +64,6 @@ body{
   transition:background .35s ease,color .35s ease;
 }
 
-/* 顶部氛围光 */
 body::before{
   content:"";
   position:fixed;
@@ -86,7 +84,14 @@ body::before{
 
 img{display:block;max-width:100%}
 
-/* ============ 顶部栏：导航 + 主题 ============ */
+/* ============ 入场动画 ============ */
+@keyframes riseIn{
+  from{opacity:0;transform:translateY(12px)}
+  to{opacity:1;transform:none}
+}
+.enter{animation:riseIn .55s cubic-bezier(.2,.8,.2,1) backwards}
+
+/* ============ 顶部栏 ============ */
 .topbar{
   display:flex;
   align-items:center;
@@ -126,7 +131,7 @@ img{display:block;max-width:100%}
 .site-header{
   max-width:var(--maxw);
   margin:0 auto;
-  padding:44px 24px 30px;
+  padding:44px 24px 32px;
 }
 
 .page-title{
@@ -198,7 +203,7 @@ img{display:block;max-width:100%}
   box-shadow:var(--shadow-hover);
 }
 
-/* 整行通栏（第一张重点照片用这个） */
+/* 整行通栏（重点照片用这个） */
 .pic--wide{grid-column:1 / -1}
 
 .pic-btn{
@@ -212,10 +217,11 @@ img{display:block;max-width:100%}
 }
 .pic-btn img{
   width:100%;
-  aspect-ratio:3/2;
+  aspect-ratio:1;
   object-fit:cover;
   transition:transform .7s cubic-bezier(.2,.8,.2,1);
 }
+.pic--wide .pic-btn img{aspect-ratio:3/2}
 .pic:hover .pic-btn img{transform:scale(1.045)}
 
 /* 竖构图照片：给 <figure> 加 class="pic--portrait" 就会变成 3:4
@@ -386,11 +392,13 @@ img{display:block;max-width:100%}
 
 <div class="page">
 
-  <!-- ============ 页头 ============ -->
   <header class="site-header">
+
     <div class="topbar">
       <nav class="site-nav">
         <a href="index.html">首页</a>
+        <a href="articles.html">文章</a>
+        <a href="notes.html">随笔</a>
         <a href="gallery.html" class="is-active">相片馆</a>
       </nav>
 
@@ -406,32 +414,98 @@ img{display:block;max-width:100%}
     </div>
 
     <h1 class="page-title">相片馆</h1>
-    <p class="page-sub">按下快门的那些瞬间。点开可以看大图。</p>
+    <p class="page-sub">按下快门的那些瞬间。点开可以看大图，左右可以翻页。</p>
   </header>
 
   <!-- ============ 相片列表 ============
        加新照片：复制一个 <figure class="pic"> 整块，改
-       src / alt / 标题 / 地点 即可。
+       src / alt / 标题 / 地点。
        通栏大图：class="pic pic--wide"
        竖构图：  class="pic pic--portrait"
        缩略图与原件分离：在 <img> 上加 data-full="photos/full/x.jpg"
+       下面第 2 张起是 picsum 占位图，换成你自己的照片后直接替换 src 即可
   ====================================== -->
   <main class="gallery" id="gallery">
 
-    <!-- 1 灯下游园（通栏大图，原图 3:2，不会被裁切） -->
+    <!-- 1 灯下游园（真实照片，通栏） -->
     <figure class="pic pic--wide">
-      <button class="pic-btn" type="button" aria-label="放大查看：江汉街">
-        <img src="photos/gallery-01.jpg" alt="江汉街">
+      <button class="pic-btn" type="button" aria-label="放大查看：江汉路">
+        <img src="photos/gallery-01.jpg" alt="江汉路">
       </button>
       <figcaption class="pic-cap">
-        <span>江汉街</span>
+        <span>江汉路</span>
         <span class="place">武汉</span>
+      </figcaption>
+    </figure>
+
+    <!-- 2 -->
+    <figure class="pic">
+      <button class="pic-btn" type="button" aria-label="放大查看：清晨的窗">
+        <img src="https://picsum.photos/seed/morning77/760/760" alt="清晨的窗" loading="lazy">
+      </button>
+      <figcaption class="pic-cap">
+        <span>清晨的窗</span>
+        <span class="place">杭州</span>
+      </figcaption>
+    </figure>
+
+    <!-- 3 -->
+    <figure class="pic">
+      <button class="pic-btn" type="button" aria-label="放大查看：雨后的街道">
+        <img src="https://picsum.photos/seed/rain22/760/760" alt="雨后的街道" loading="lazy">
+      </button>
+      <figcaption class="pic-cap">
+        <span>雨后的街道</span>
+        <span class="place">上海</span>
+      </figcaption>
+    </figure>
+
+    <!-- 4 -->
+    <figure class="pic">
+      <button class="pic-btn" type="button" aria-label="放大查看：旧书店的一角">
+        <img src="https://picsum.photos/seed/bookshop31/760/760" alt="旧书店的一角" loading="lazy">
+      </button>
+      <figcaption class="pic-cap">
+        <span>旧书店的一角</span>
+        <span class="place">苏州</span>
+      </figcaption>
+    </figure>
+
+    <!-- 5 -->
+    <figure class="pic">
+      <button class="pic-btn" type="button" aria-label="放大查看：海边的黄昏">
+        <img src="https://picsum.photos/seed/sunset88/760/760" alt="海边的黄昏" loading="lazy">
+      </button>
+      <figcaption class="pic-cap">
+        <span>海边的黄昏</span>
+        <span class="place">厦门</span>
+      </figcaption>
+    </figure>
+
+    <!-- 6 -->
+    <figure class="pic">
+      <button class="pic-btn" type="button" aria-label="放大查看：深夜的一碗面">
+        <img src="https://picsum.photos/seed/noodle19/760/760" alt="深夜的一碗面" loading="lazy">
+      </button>
+      <figcaption class="pic-cap">
+        <span>深夜的一碗面</span>
+        <span class="place">成都</span>
+      </figcaption>
+    </figure>
+
+    <!-- 7 -->
+    <figure class="pic">
+      <button class="pic-btn" type="button" aria-label="放大查看：午后的巷子">
+        <img src="https://picsum.photos/seed/street64/760/760" alt="午后的巷子" loading="lazy">
+      </button>
+      <figcaption class="pic-cap">
+        <span>午后的巷子</span>
+        <span class="place">泉州</span>
       </figcaption>
     </figure>
 
   </main>
 
-  <!-- ============ 页脚 ============ -->
   <footer class="site-footer">
     <p>© <span id="year">2024</span> 言一 · <a href="index.html">回到首页</a></p>
   </footer>
@@ -453,7 +527,7 @@ img{display:block;max-width:100%}
   'use strict';
 
   /* =========================================================
-     1. 主题切换（与首页共用 key = 'theme'）
+     1. 主题切换（与其它页面共用 key = 'theme'）
      ========================================================= */
   const root = document.documentElement;
   const toggle = document.getElementById('themeToggle');
@@ -476,7 +550,6 @@ img{display:block;max-width:100%}
 
     let title = '';
     if (cap) {
-      // 取 caption 里除 .place 以外的文字当标题
       const clone = cap.cloneNode(true);
       const p = clone.querySelector('.place');
       if (p) p.remove();
@@ -506,7 +579,6 @@ img{display:block;max-width:100%}
   let current = 0;
   let lastFocused = null;
 
-  // 只有一张照片时隐藏左右箭头
   if (photos.length <= 1) {
     lightboxPrev.style.display = 'none';
     lightboxNext.style.display = 'none';
@@ -589,7 +661,15 @@ img{display:block;max-width:100%}
   }, { passive: true });
 
   /* =========================================================
-     4. 图片加载失败兜底
+     4. 入场动画
+     ========================================================= */
+  figures.forEach(function (fig, i) {
+    fig.style.animationDelay = Math.min(i, 9) * 45 + 'ms';
+    fig.classList.add('enter');
+  });
+
+  /* =========================================================
+     5. 图片加载失败兜底
      ========================================================= */
   document.querySelectorAll('.pic-btn img').forEach(function (img) {
     img.addEventListener('error', function () {
@@ -601,13 +681,13 @@ img{display:block;max-width:100%}
         btn.style.minHeight = '180px';
         btn.style.fontSize = '13px';
         btn.style.color = 'var(--text-muted)';
-        btn.textContent = '图片加载失败：请检查 photos/gallery-01.jpg 是否存在';
+        btn.textContent = '图片加载失败：请检查 src 路径';
       }
     });
   });
 
   /* =========================================================
-     5. 页脚年份自动更新
+     6. 页脚年份自动更新
      ========================================================= */
   document.getElementById('year').textContent = new Date().getFullYear();
 

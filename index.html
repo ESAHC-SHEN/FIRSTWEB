@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>言一 · 写点什么</title>
+<title>言一</title>
+<meta name="description" content="言一：文章、随笔与相片馆。">
 
 <!-- 尽早应用主题，避免刷新时闪白 -->
 <script>
@@ -86,6 +87,16 @@ body::before{
 
 img{display:block;max-width:100%}
 
+/* ============ 入场动画 ============ */
+@keyframes riseIn{
+  from{opacity:0;transform:translateY(12px)}
+  to{opacity:1;transform:none}
+}
+/* 用 backwards 而不是 both：
+   both 会让动画结束后继续保留 transform:none，
+   从而盖掉 hover 的 translateY，卡片就"浮不起来"了 */
+.enter{animation:riseIn .55s cubic-bezier(.2,.8,.2,1) backwards}
+
 /* ============ 顶部栏：导航 + 主题 ============ */
 .topbar{
   display:flex;
@@ -133,7 +144,6 @@ img{display:block;max-width:100%}
   display:flex;
   gap:26px;
   align-items:center;
-  position:relative;
 }
 
 .avatar{
@@ -186,16 +196,11 @@ img{display:block;max-width:100%}
   border-color:var(--accent);
   transform:translateY(-1px);
 }
-/* 邮箱：仅展示，不可点击 */
 .socials .social-text{
   cursor:default;
   -webkit-user-select:text;
   user-select:text;
   font-variant-numeric:tabular-nums;
-}
-.socials .social-text:hover{
-  color:var(--accent);
-  border-color:var(--accent);
 }
 
 /* 主题切换 */
@@ -225,7 +230,7 @@ img{display:block;max-width:100%}
 /* ============ 实时状态条（时间 / 天气） ============ */
 .status-bar{
   max-width:var(--maxw);
-  margin:0 auto 26px;
+  margin:0 auto 34px;
   padding:0 24px;
 }
 
@@ -294,212 +299,111 @@ img{display:block;max-width:100%}
   flex-shrink:0;
 }
 
-/* ============ 筛选 ============ */
-.filters{
-  max-width:var(--maxw);
-  margin:0 auto 30px;
-  padding:0 24px;
-  display:flex;
-  gap:8px;
-  flex-wrap:wrap;
-}
-
-.filter{
-  font-family:inherit;
-  font-size:14px;
-  padding:7px 17px;
-  border-radius:999px;
-  border:1px solid transparent;
-  background:transparent;
-  color:var(--text-muted);
-  cursor:pointer;
-  transition:background .22s,color .22s,border-color .22s,transform .18s;
-}
-.filter:hover{
-  color:var(--text);
-  background:var(--surface-2);
-  transform:translateY(-1px);
-}
-.filter.is-active{
-  background:var(--text);
-  color:var(--bg);
-  border-color:var(--text);
-}
-
-/* ============ 内容网格 ============ */
-.feed{
+/* ============ 三个专栏大块 ============ */
+.columns{
   max-width:var(--maxw);
   margin:0 auto;
   padding:0 24px 90px;
   display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(272px,1fr));
+  grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));
   gap:22px;
-  align-items:start;
+  align-items:stretch;
 }
 
-.card{
+.col{
   position:relative;
+  display:flex;
+  flex-direction:column;
+  min-height:250px;
+  padding:32px 28px 24px;
   background:var(--surface);
   border:1px solid var(--border);
   border-radius:var(--radius);
-  overflow:hidden;
   box-shadow:var(--shadow);
+  text-decoration:none;
+  color:inherit;
+  overflow:hidden;
   transition:transform .4s cubic-bezier(.2,.8,.2,1),
              box-shadow .4s cubic-bezier(.2,.8,.2,1),
              border-color .3s;
 }
-.card:hover{
-  transform:translateY(-4px);
+.col::before{
+  content:"";
+  position:absolute;
+  top:0;left:0;right:0;
+  height:150px;
+  background:radial-gradient(120% 100% at 14% 0%, var(--tint-soft), transparent 70%);
+  pointer-events:none;
+}
+.col:hover{
+  transform:translateY(-5px);
   border-color:transparent;
   box-shadow:var(--shadow-hover);
 }
 
-.card.is-hidden{display:none}
+/* 每栏一个色（与正文 .tag 的暖色同族，另加青绿、蓝灰各一支） */
+.col--article{--tint:var(--accent);--tint-soft:var(--accent-soft)}
+.col--note{--tint:#6f7d5a;--tint-soft:#eef0e6}
+.col--photo{--tint:#4a6b8a;--tint-soft:#e6edf3}
+[data-theme="dark"] .col--note{--tint:#9fb383;--tint-soft:#232a1e}
+[data-theme="dark"] .col--photo{--tint:#8fb0cc;--tint-soft:#1c242b}
 
-@keyframes cardIn{
-  from{opacity:0;transform:translateY(12px)}
-  to{opacity:1;transform:none}
-}
-.card.enter{animation:cardIn .55s cubic-bezier(.2,.8,.2,1) both}
-
-.card-link{
-  display:block;
-  color:inherit;
-  text-decoration:none;
-}
-
-/* ---- 文章卡片 ---- */
-.card--article{grid-column:span 2}
-
-.card-cover{
-  aspect-ratio:16/9;
-  overflow:hidden;
-  background:linear-gradient(120deg,var(--surface-2),var(--border));
-}
-.card-cover img{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  transition:transform .7s cubic-bezier(.2,.8,.2,1);
-}
-.card--article:hover .card-cover img{transform:scale(1.045)}
-
-.card-body{padding:22px 24px 24px}
-
-.meta{
-  display:flex;
-  align-items:center;
-  gap:9px;
-  font-size:12.5px;
-  color:var(--text-muted);
-  letter-spacing:.01em;
-}
-.meta .dot{opacity:.5}
-
-.tag{
-  color:var(--accent);
-  background:var(--accent-soft);
-  font-weight:600;
-  padding:2px 10px;
-  border-radius:999px;
+.col-num{
+  position:absolute;
+  top:24px;
+  right:26px;
   font-size:12px;
+  letter-spacing:.16em;
+  color:var(--text-muted);
+  opacity:.55;
+  font-variant-numeric:tabular-nums;
 }
 
-.card-title{
+.col-glyph{
+  position:relative;
   font-family:var(--serif);
-  font-size:21px;
+  font-size:32px;
   font-weight:600;
-  line-height:1.5;
-  letter-spacing:-.005em;
-  margin:13px 0 9px;
+  line-height:1;
+  color:var(--tint);
+  margin-bottom:20px;
 }
 
-.card-excerpt{
-  margin:0;
+.col-title{
+  position:relative;
+  font-family:var(--serif);
+  font-size:22px;
+  font-weight:600;
+  line-height:1.4;
+  margin:0 0 8px;
+}
+
+.col-desc{
+  position:relative;
+  margin:0 0 24px;
   font-size:14.5px;
   line-height:1.78;
   color:var(--text-muted);
-  display:-webkit-box;
-  -webkit-line-clamp:2;
-  line-clamp:2;
-  -webkit-box-orient:vertical;
-  overflow:hidden;
+  flex:1 1 auto;
 }
 
-.card-foot{
+.col-foot{
+  position:relative;
   display:flex;
   align-items:center;
   justify-content:space-between;
-  margin-top:18px;
+  gap:10px;
   padding-top:14px;
   border-top:1px solid var(--border);
   font-size:13px;
   color:var(--text-muted);
 }
-.card-foot .arrow{
+.col-arrow{
+  color:var(--tint);
+  font-size:16px;
   transition:transform .3s cubic-bezier(.2,.8,.2,1);
-  font-size:15px;
 }
-.card--article:hover .arrow{transform:translateX(5px)}
-
-/* ---- 随笔卡片 ---- */
-.card--note::before{
-  content:"";
-  position:absolute;
-  left:0;
-  top:20px;
-  bottom:20px;
-  width:3px;
-  border-radius:0 3px 3px 0;
-  background:var(--accent);
-  opacity:.85;
-}
-.card--note .card-body{padding:24px 24px 22px 28px}
-
-.note-text{
-  margin:0 0 16px;
-  font-size:15px;
-  line-height:1.85;
-  font-family:var(--serif);
-}
-.note-text::before{content:"「"}
-.note-text::after{content:"」"}
-
-/* ---- 照片卡片 ---- */
-.card--photo{background:var(--surface)}
-
-.photo-btn{
-  display:block;
-  width:100%;
-  padding:0;
-  border:0;
-  background:var(--surface-2);
-  cursor:zoom-in;
-  aspect-ratio:1;
-  overflow:hidden;
-}
-.photo-btn img{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  transition:transform .7s cubic-bezier(.2,.8,.2,1);
-}
-.card--photo:hover .photo-btn img{transform:scale(1.06)}
-
-.photo-caption{
-  padding:14px 18px 16px;
-  font-size:13.5px;
-  color:var(--text-muted);
-  display:flex;
-  justify-content:space-between;
-  align-items:baseline;
-  gap:10px;
-}
-.photo-caption .place{
-  font-size:12px;
-  opacity:.7;
-  white-space:nowrap;
-}
+.col:hover .col-arrow{transform:translateX(5px)}
 
 /* ============ 页脚 ============ */
 .site-footer{
@@ -527,59 +431,6 @@ img{display:block;max-width:100%}
   user-select:text;
 }
 
-/* ============ 灯箱 ============ */
-.lightbox{
-  position:fixed;
-  inset:0;
-  z-index:100;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:36px;
-  background:rgba(10,10,13,.93);
-  -webkit-backdrop-filter:blur(14px);
-  backdrop-filter:blur(14px);
-  opacity:0;
-  pointer-events:none;
-  transition:opacity .32s ease;
-}
-.lightbox.is-open{
-  opacity:1;
-  pointer-events:auto;
-}
-.lightbox img{
-  max-width:100%;
-  max-height:100%;
-  object-fit:contain;
-  border-radius:10px;
-  transform:scale(.95);
-  transition:transform .38s cubic-bezier(.2,.8,.2,1);
-  box-shadow:0 40px 80px -30px rgba(0,0,0,.9);
-}
-.lightbox.is-open img{transform:scale(1)}
-
-.lightbox-close{
-  position:absolute;
-  top:22px;
-  right:26px;
-  width:44px;
-  height:44px;
-  border-radius:50%;
-  border:1px solid rgba(255,255,255,.2);
-  background:rgba(255,255,255,.06);
-  color:#fff;
-  font-size:24px;
-  line-height:1;
-  cursor:pointer;
-  display:grid;
-  place-items:center;
-  transition:background .22s,transform .22s;
-}
-.lightbox-close:hover{
-  background:rgba(255,255,255,.16);
-  transform:rotate(90deg);
-}
-
 /* ============ 响应式 ============ */
 @media (max-width:720px){
   .site-header{padding:34px 20px 28px}
@@ -588,17 +439,15 @@ img{display:block;max-width:100%}
   .avatar{width:70px;height:70px}
   .theme-toggle{width:36px;height:36px}
 
-  .status-bar{padding:0 20px;margin-bottom:20px}
+  .status-bar{padding:0 20px;margin-bottom:24px}
   .status-inner{gap:16px;padding:14px 18px}
   .status-sep{display:none}
   .status-group{flex:1 1 auto}
   .status-text strong{font-size:15px}
 
-  .filters{padding:0 20px;margin-bottom:22px}
-  .feed{padding:0 20px 72px;grid-template-columns:1fr;gap:18px}
-  .card--article{grid-column:span 1}
-  .card-title{font-size:19.5px}
-  .lightbox{padding:18px}
+  .columns{padding:0 20px 72px;gap:18px}
+  .col{min-height:0;padding:26px 22px 20px}
+  .col-glyph{font-size:28px;margin-bottom:16px}
 }
 
 @media (prefers-reduced-motion:reduce){
@@ -618,10 +467,11 @@ img{display:block;max-width:100%}
   <!-- ============ 个人头部 ============ -->
   <header class="site-header">
 
-    <!-- 顶部栏：导航 + 主题切换 -->
     <div class="topbar">
       <nav class="site-nav">
         <a href="index.html" class="is-active">首页</a>
+        <a href="articles.html">文章</a>
+        <a href="notes.html">随笔</a>
         <a href="gallery.html">相片馆</a>
       </nav>
 
@@ -656,7 +506,6 @@ img{display:block;max-width:100%}
   <section class="status-bar" aria-label="实时时间与天气">
     <div class="status-inner">
 
-      <!-- 时间 -->
       <div class="status-group">
         <svg class="status-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
              stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -671,7 +520,6 @@ img{display:block;max-width:100%}
 
       <span class="status-sep" aria-hidden="true"></span>
 
-      <!-- 天气 -->
       <div class="status-group">
         <span class="status-icon" id="weatherIcon" aria-hidden="true">⏳</span>
         <div class="status-text">
@@ -683,170 +531,57 @@ img{display:block;max-width:100%}
     </div>
   </section>
 
-  <!-- ============ 筛选 ============ -->
-  <nav class="filters" id="filters">
-    <button class="filter is-active" data-filter="all">全部</button>
-    <button class="filter" data-filter="article">文章</button>
-    <button class="filter" data-filter="note">随笔</button>
-    <button class="filter" data-filter="photo">照片</button>
-  </nav>
+  <!-- ============ 三个专栏 ============
+       改数量：改 .col-foot 里的「N 篇 / N 则 / N 张」
+  ====================================== -->
+  <main class="columns" id="columns">
 
-  <!-- ============ 内容流 ============ -->
-  <main class="feed" id="feed">
+    <a class="col col--article" href="articles.html">
+      <span class="col-num">01</span>
+      <span class="col-glyph">文</span>
+      <h2 class="col-title">文章</h2>
+      <p class="col-desc">长一点的思考。设计、代码，以及那些只有写下来才想明白的事。</p>
+      <span class="col-foot">
+        <span>2 篇</span>
+        <span class="col-arrow" aria-hidden="true">→</span>
+      </span>
+    </a>
 
-    <!-- 1 文章 -->
-    <article class="card card--article" data-type="article">
-      <a class="card-link" href="#">
-        <div class="card-cover">
-          <img src="https://picsum.photos/seed/whitespace11/1000/560" alt="" loading="lazy">
-        </div>
-        <div class="card-body">
-          <div class="meta">
-            <span class="tag">设计</span>
-            <span class="dot">·</span>
-            <time datetime="2024-11-12">2024 年 11 月 12 日</time>
-          </div>
-          <h2 class="card-title">留白不是空的：说说设计里最容易被忽略的呼吸感</h2>
-          <p class="card-excerpt">
-            当我把页面上三分之一的元素删掉之后，信息的清晰度反而提升了。留白从来不是「还没填满」，
-            它本身就是内容的一部分。
-          </p>
-          <div class="card-foot">
-            <span>8 分钟阅读</span>
-            <span class="arrow">→</span>
-          </div>
-        </div>
-      </a>
-    </article>
+    <a class="col col--note" href="notes.html">
+      <span class="col-num">02</span>
+      <span class="col-glyph">碎</span>
+      <h2 class="col-title">随笔</h2>
+      <p class="col-desc">一两句话的碎片。地铁上、睡前、走路时突然冒出来的东西。</p>
+      <span class="col-foot">
+        <span>3 则</span>
+        <span class="col-arrow" aria-hidden="true">→</span>
+      </span>
+    </a>
 
-    <!-- 2 随笔 -->
-    <article class="card card--note" data-type="note">
-      <div class="card-body">
-        <p class="note-text">今天在地铁上看到一个人读纸质书，手指夹在书页之间，像夹着一个秘密。</p>
-        <div class="meta"><time datetime="2024-11-09">11 月 9 日</time></div>
-      </div>
-    </article>
-
-    <!-- 3 照片 -->
-    <article class="card card--photo" data-type="photo">
-      <button class="photo-btn" type="button" aria-label="查看大图">
-        <img src="https://picsum.photos/seed/morning77/760/760" alt="清晨的窗" loading="lazy">
-      </button>
-      <div class="photo-caption">
-        <span>清晨的窗</span>
-        <span class="place">杭州</span>
-      </div>
-    </article>
-
-    <!-- 4 照片 -->
-    <article class="card card--photo" data-type="photo">
-      <button class="photo-btn" type="button" aria-label="查看大图">
-        <img src="https://picsum.photos/seed/rain22/760/760" alt="雨后的街道" loading="lazy">
-      </button>
-      <div class="photo-caption">
-        <span>雨后的街道</span>
-        <span class="place">上海</span>
-      </div>
-    </article>
-
-    <!-- 5 照片 -->
-    <article class="card card--photo" data-type="photo">
-      <button class="photo-btn" type="button" aria-label="查看大图">
-        <img src="https://picsum.photos/seed/bookshop31/760/760" alt="旧书店的一角" loading="lazy">
-      </button>
-      <div class="photo-caption">
-        <span>旧书店的一角</span>
-        <span class="place">苏州</span>
-      </div>
-    </article>
-
-    <!-- 6 文章 -->
-    <article class="card card--article" data-type="article">
-      <a class="card-link" href="#">
-        <div class="card-cover">
-          <img src="https://picsum.photos/seed/writing55/1000/560" alt="" loading="lazy">
-        </div>
-        <div class="card-body">
-          <div class="meta">
-            <span class="tag">随笔式技术</span>
-            <span class="dot">·</span>
-            <time datetime="2024-10-28">2024 年 10 月 28 日</time>
-          </div>
-          <h2 class="card-title">我为什么重新开始写博客</h2>
-          <p class="card-excerpt">
-            写给别人看的时候，我会不自觉地表演。写给自己看的时候，我才敢承认很多事我其实没想明白——
-            而这恰恰是写作最有用的部分。
-          </p>
-          <div class="card-foot">
-            <span>6 分钟阅读</span>
-            <span class="arrow">→</span>
-          </div>
-        </div>
-      </a>
-    </article>
-
-    <!-- 7 随笔 -->
-    <article class="card card--note" data-type="note">
-      <div class="card-body">
-        <p class="note-text">关于「太晚开始」这件事：种一棵树最好的时间是十年前，其次是现在。这句话被说烂了，但每次真的动手时，还是会被它击中。</p>
-        <div class="meta"><time datetime="2024-10-21">10 月 21 日</time></div>
-      </div>
-    </article>
-
-    <!-- 8 照片 -->
-    <article class="card card--photo" data-type="photo">
-      <button class="photo-btn" type="button" aria-label="查看大图">
-        <img src="https://picsum.photos/seed/sunset88/760/760" alt="海边的黄昏" loading="lazy">
-      </button>
-      <div class="photo-caption">
-        <span>海边的黄昏</span>
-        <span class="place">厦门</span>
-      </div>
-    </article>
-
-    <!-- 9 照片 -->
-    <article class="card card--photo" data-type="photo">
-      <button class="photo-btn" type="button" aria-label="查看大图">
-        <img src="https://picsum.photos/seed/noodle19/760/760" alt="深夜的一碗面" loading="lazy">
-      </button>
-      <div class="photo-caption">
-        <span>深夜的一碗面</span>
-        <span class="place">成都</span>
-      </div>
-    </article>
-
-    <!-- 10 随笔 -->
-    <article class="card card--note" data-type="note">
-      <div class="card-body">
-        <p class="note-text">重新读了一遍《海边的卡夫卡》，发现自己划线的地方和五年前完全不一样了。书没变，是读书的人换了。</p>
-        <div class="meta"><time datetime="2024-10-05">10 月 5 日</time></div>
-      </div>
-    </article>
-
-    <!-- 11 照片 -->
-    <article class="card card--photo" data-type="photo">
-      <button class="photo-btn" type="button" aria-label="查看大图">
-        <img src="https://picsum.photos/seed/street64/760/760" alt="午后的巷子" loading="lazy">
-      </button>
-      <div class="photo-caption">
-        <span>午后的巷子</span>
-        <span class="place">泉州</span>
-      </div>
-    </article>
+    <a class="col col--photo" href="gallery.html">
+      <span class="col-num">03</span>
+      <span class="col-glyph">影</span>
+      <h2 class="col-title">相片馆</h2>
+      <p class="col-desc">按下快门的那些瞬间。点开可以看大图。</p>
+      <span class="col-foot">
+        <span>7 张</span>
+        <span class="col-arrow" aria-hidden="true">→</span>
+      </span>
+    </a>
 
   </main>
 
   <!-- ============ 页脚 ============ -->
   <footer class="site-footer">
-    <p>© <span id="year">2024</span> 言一 · <a href="gallery.html">相片馆</a> · <span class="foot-mail">247556861@qq.com</span></p>
+    <p>
+      © <span id="year">2024</span> 言一 ·
+      <a href="articles.html">文章</a> ·
+      <a href="notes.html">随笔</a> ·
+      <a href="gallery.html">相片馆</a> ·
+      <span class="foot-mail">247556861@qq.com</span>
+    </p>
   </footer>
 
-</div>
-
-<!-- ============ 灯箱 ============ -->
-<div class="lightbox" id="lightbox" aria-hidden="true" role="dialog" aria-modal="true">
-  <button class="lightbox-close" id="lightboxClose" aria-label="关闭">×</button>
-  <img id="lightboxImg" src="" alt="">
 </div>
 
 <script>
@@ -889,11 +624,9 @@ img{display:block;max-width:100%}
 
   /* =========================================================
      3. 天气模块（Open-Meteo · 免费无需 API Key）
-
-     ▸ 想固定显示某个城市，直接改 DEFAULT_LOCATION 即可。
-       常用坐标参考：
-         北京 39.9042, 116.4074   上海 31.2304, 121.4737
-         杭州 30.2741, 120.1551   深圳 22.5431, 114.0579
+        ▸ 想固定显示某个城市，直接改 DEFAULT_LOCATION 即可。
+          北京 39.9042,116.4074   上海 31.2304,121.4737
+          杭州 30.2741,120.1551   深圳 22.5431,114.0579
      ========================================================= */
   const DEFAULT_LOCATION = { lat: 30.2741, lon: 120.1551, name: '杭州' };
 
@@ -901,36 +634,17 @@ img{display:block;max-width:100%}
   const weatherMainEl = document.getElementById('weatherMain');
   const weatherSubEl  = document.getElementById('weatherSub');
 
-  // WMO 天气代码 → 中文描述 + 图标
   const WMO = {
-    0:  { t: '晴',           i: '☀️' },
-    1:  { t: '晴间多云',     i: '🌤️' },
-    2:  { t: '多云',         i: '⛅' },
-    3:  { t: '阴',           i: '☁️' },
-    45: { t: '雾',           i: '🌫️' },
-    48: { t: '雾凇',         i: '🌫️' },
-    51: { t: '小毛毛雨',     i: '🌦️' },
-    53: { t: '毛毛雨',       i: '🌦️' },
-    55: { t: '大毛毛雨',     i: '🌧️' },
-    56: { t: '冻毛毛雨',     i: '🌨️' },
-    57: { t: '冻毛毛雨',     i: '🌨️' },
-    61: { t: '小雨',         i: '🌦️' },
-    63: { t: '中雨',         i: '🌧️' },
-    65: { t: '大雨',         i: '🌧️' },
-    66: { t: '冻雨',         i: '🌨️' },
-    67: { t: '冻雨',         i: '🌨️' },
-    71: { t: '小雪',         i: '🌨️' },
-    73: { t: '中雪',         i: '🌨️' },
-    75: { t: '大雪',         i: '❄️' },
-    77: { t: '雪粒',         i: '❄️' },
-    80: { t: '小阵雨',       i: '🌦️' },
-    81: { t: '阵雨',         i: '🌧️' },
-    82: { t: '强阵雨',       i: '⛈️' },
-    85: { t: '小阵雪',       i: '🌨️' },
-    86: { t: '大阵雪',       i: '❄️' },
-    95: { t: '雷阵雨',       i: '⛈️' },
-    96: { t: '雷阵雨伴冰雹', i: '⛈️' },
-    99: { t: '雷暴伴冰雹',   i: '⛈️' }
+    0:{t:'晴',i:'☀️'}, 1:{t:'晴间多云',i:'🌤️'}, 2:{t:'多云',i:'⛅'}, 3:{t:'阴',i:'☁️'},
+    45:{t:'雾',i:'🌫️'}, 48:{t:'雾凇',i:'🌫️'},
+    51:{t:'小毛毛雨',i:'🌦️'}, 53:{t:'毛毛雨',i:'🌦️'}, 55:{t:'大毛毛雨',i:'🌧️'},
+    56:{t:'冻毛毛雨',i:'🌨️'}, 57:{t:'冻毛毛雨',i:'🌨️'},
+    61:{t:'小雨',i:'🌦️'}, 63:{t:'中雨',i:'🌧️'}, 65:{t:'大雨',i:'🌧️'},
+    66:{t:'冻雨',i:'🌨️'}, 67:{t:'冻雨',i:'🌨️'},
+    71:{t:'小雪',i:'🌨️'}, 73:{t:'中雪',i:'🌨️'}, 75:{t:'大雪',i:'❄️'}, 77:{t:'雪粒',i:'❄️'},
+    80:{t:'小阵雨',i:'🌦️'}, 81:{t:'阵雨',i:'🌧️'}, 82:{t:'强阵雨',i:'⛈️'},
+    85:{t:'小阵雪',i:'🌨️'}, 86:{t:'大阵雪',i:'❄️'},
+    95:{t:'雷阵雨',i:'⛈️'}, 96:{t:'雷阵雨伴冰雹',i:'⛈️'}, 99:{t:'雷暴伴冰雹',i:'⛈️'}
   };
 
   function renderWeather(data, placeName) {
@@ -961,16 +675,11 @@ img{display:block;max-width:100%}
         if (!res.ok) throw new Error('HTTP ' + res.status);
         return res.json();
       })
-      .then(function (data) {
-        renderWeather(data, placeName);
-      })
-      .catch(function () {
-        renderWeatherError('网络异常，请稍后刷新');
-      });
+      .then(function (data) { renderWeather(data, placeName); })
+      .catch(function () { renderWeatherError('网络异常，请稍后刷新'); });
   }
 
   function initWeather() {
-    // 优先尝试浏览器定位，失败或超时则回退到默认城市
     if (navigator.geolocation) {
       let settled = false;
 
@@ -1002,100 +711,18 @@ img{display:block;max-width:100%}
   }
 
   initWeather();
-  // 每 10 分钟刷新一次天气
   setInterval(initWeather, 10 * 60 * 1000);
 
   /* =========================================================
-     4. 内容筛选
+     4. 入场动画
      ========================================================= */
-  const filterBtns = document.querySelectorAll('.filter');
-  const cards = Array.from(document.querySelectorAll('.card'));
-
-  filterBtns.forEach(function (btn) {
-    btn.addEventListener('click', function () {
-      filterBtns.forEach(function (b) { b.classList.remove('is-active'); });
-      btn.classList.add('is-active');
-
-      const type = btn.dataset.filter;
-      let index = 0;
-
-      cards.forEach(function (card) {
-        const show = (type === 'all' || card.dataset.type === type);
-        card.classList.toggle('is-hidden', !show);
-
-        if (show) {
-          card.classList.remove('enter');
-          void card.offsetWidth; // 强制重排以重播动画
-          card.style.animationDelay = Math.min(index++, 9) * 35 + 'ms';
-          card.classList.add('enter');
-        }
-      });
-    });
+  document.querySelectorAll('.col').forEach(function (el, i) {
+    el.style.animationDelay = Math.min(i, 9) * 60 + 'ms';
+    el.classList.add('enter');
   });
 
   /* =========================================================
-     5. 入场动画
-     ========================================================= */
-  cards.forEach(function (card, i) {
-    card.style.animationDelay = Math.min(i, 9) * 45 + 'ms';
-    card.classList.add('enter');
-  });
-
-  /* =========================================================
-     6. 图片灯箱
-     ========================================================= */
-  const lightbox = document.getElementById('lightbox');
-  const lightboxImg = document.getElementById('lightboxImg');
-  const lightboxClose = document.getElementById('lightboxClose');
-  let lastFocused = null;
-
-  function openLightbox(src, alt) {
-    lastFocused = document.activeElement;
-    lightboxImg.src = src;
-    lightboxImg.alt = alt || '';
-    lightbox.classList.add('is-open');
-    lightbox.setAttribute('aria-hidden', 'false');
-    document.body.style.overflow = 'hidden';
-    lightboxClose.focus();
-  }
-
-  function closeLightbox() {
-    lightbox.classList.remove('is-open');
-    lightbox.setAttribute('aria-hidden', 'true');
-    document.body.style.overflow = '';
-    if (lastFocused) lastFocused.focus();
-  }
-
-  document.querySelectorAll('.photo-btn').forEach(function (btn) {
-    btn.addEventListener('click', function () {
-      const img = btn.querySelector('img');
-      if (img) openLightbox(img.currentSrc || img.src, img.alt);
-    });
-  });
-
-  lightbox.addEventListener('click', function (e) {
-    if (e.target !== lightboxImg) closeLightbox();
-  });
-
-  lightboxClose.addEventListener('click', closeLightbox);
-
-  document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape' && lightbox.classList.contains('is-open')) {
-      closeLightbox();
-    }
-  });
-
-  /* =========================================================
-     7. 图片加载失败兜底
-     ========================================================= */
-  document.querySelectorAll('.card-cover img, .photo-btn img').forEach(function (img) {
-    img.addEventListener('error', function () {
-      img.style.display = 'none';
-    });
-  });
-
-  /* =========================================================
-     8. 页脚年份自动更新
+     5. 页脚年份自动更新
      ========================================================= */
   document.getElementById('year').textContent = new Date().getFullYear();
 
