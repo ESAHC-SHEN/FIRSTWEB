@@ -1,15 +1,14 @@
 /* =========================================================
    言一 · 全站脚本
-   主题 / 导航高亮 / 浏览量 / 全屏视图 / 版本号
+   主题 / 导航高亮 / 浏览量 / 版本号
    ========================================================= */
 window.YY = (function () {
   'use strict';
 
-  const VERSION = 'beta0.11';
-
-  /* ---------- 1. 主题 ---------- */
+  const VERSION = 'beta0.12';
   const root = document.documentElement;
 
+  /* ---------- 1. 主题 ---------- */
   function initTheme() {
     const btn = document.getElementById('themeToggle');
     if (!btn) return;
@@ -20,95 +19,35 @@ window.YY = (function () {
     });
   }
 
-  /* ---------- 2. 导航高亮（按文件名自动判断，不用手写） ---------- */
+  /* ---------- 2. 导航高亮 ----------
+     按 data-match（空格分隔多个文件名）匹配当前页面。
+     calendar.html / weather.html 上「首页」也会亮。
+     ------------------------------------ */
   function initNav() {
-    let file = location.pathname.split('/').pop() || 'index.html';
-    if (file === '') file = 'index.html';
+    const file = location.pathname.split('/').pop() || 'index.html';
     document.querySelectorAll('.nav-links a').forEach(function (a) {
-      const href = a.getAttribute('href');
-      if (href === file) a.classList.add('is-active');
+      const raw = a.getAttribute('data-match') || a.getAttribute('href') || '';
+      const list = raw.split(/\s+/).filter(Boolean);
+      if (list.indexOf(file) >= 0) a.classList.add('is-active');
     });
   }
 
-  /* ---------- 3. 全屏视图开关 ---------- */
-  const openHooks = {};
-
-  function closeViews() {
-    document.querySelectorAll('.view.is-open').forEach(function (v) {
-      v.classList.remove('is-open');
-      v.setAttribute('aria-hidden', 'true');
-    });
-    document.documentElement.style.overflow = '';
-  }
-
-  function openView(name, opts) {
-    const target = document.getElementById('view-' + name);
-    if (!target) return;
-
-    closeViews();
-    target.classList.add('is-open');
-    target.setAttribute('aria-hidden', 'false');
-    document.documentElement.style.overflow = 'hidden';
-
-    if (!(opts && opts.silent)) {
-      if (location.hash !== '#' + name) {
-        try { history.pushState(null, '', '#' + name); } catch (e) {}
-      }
-    }
-
-    // 等布局完成后再通知，这样测量高度才是准的
-    requestAnimationFrame(function () {
-      const fn = openHooks[name];
-      if (fn) fn();
-    });
-  }
-
-  function onViewOpen(name, fn) { openHooks[name] = fn; }
-
-  function viewIsOpen(name) {
-    const v = document.getElementById('view-' + name);
-    return !!(v && v.classList.contains('is-open'));
-  }
-
-  function initViewKeys() {
-    document.addEventListener('keydown', function (e) {
-      if (e.key !== 'Escape') return;
-      const anyOpen = document.querySelector('.view.is-open');
-      if (anyOpen) {
-        closeViews();
-        try { history.replaceState(null, '', location.pathname); } catch (err) {}
-      }
-    });
-
-    window.addEventListener('hashchange', function () {
-      const h = location.hash.replace('#', '');
-      if (h === 'calendar' || h === 'weather') openView(h, { silent: true });
-      else closeViews();
-    });
-  }
-
-  /* ---------- 4. 浏览量 ----------
-     用 Abacus 这个免费无 Key 的计数服务。
-     它是第三方的，可能限流或挂掉 —— 挂掉时回退到本地缓存并标「离线」。
-     想换服务：只改 PV_BASE 和 parsePv() 就行。
-     -------------------------------------------------------- */
+  /* ---------- 3. 浏览量 ----------
+     Abacus 免费无 Key。它挂掉时回退到本地缓存并标记离线。
+     换服务只改 PV_BASE。
+     ------------------------------------ */
   const PV_BASE = 'https://abacus.jasoncameron.dev';
   const PV_NS   = 'yan-yi';
 
   function ymd(d) {
-    return d.getFullYear() + String(d.getMonth() + 1).padStart(2, '0') + String(d.getDate()).padStart(2, '0');
+    return d.getFullYear()
+      + String(d.getMonth() + 1).padStart(2, '0')
+      + String(d.getDate()).padStart(2, '0');
   }
 
-  function pv(path) {
-    return fetch(PV_BASE + '/' + path + '/' + PV_NS, { cache: 'no-store' })
-      .catch(function () {
-        return fetch(PV_BASE + '/' + path.replace(/^(hit|get)\//, '$1/') , { cache: 'no-store' });
-      });
-  }
-
-  // 自增：/hit/{ns}/{key}  ·  只读：/get/{ns}/{key}
   function pvFetch(kind, key) {
-    return fetch(PV_BASE + '/' + kind + '/' + PV_NS + '/' + encodeURIComponent(key), { cache: 'no-store' })
+    return fetch(PV_BASE + '/' + kind + '/' + PV_NS + '/' + encodeURIComponent(key),
+                 { cache: 'no-store' })
       .then(function (r) {
         if (!r.ok) throw new Error('HTTP ' + r.status);
         return r.json();
@@ -146,7 +85,8 @@ window.YY = (function () {
           }
         } else {
           try {
-            localStorage.setItem('pv', JSON.stringify({ total: total, today: today, day: dayKey }));
+            localStorage.setItem('pv',
+              JSON.stringify({ total: total, today: today, day: dayKey }));
           } catch (e) {}
         }
 
@@ -162,7 +102,7 @@ window.YY = (function () {
       });
   }
 
-  /* ---------- 5. 版本号 / 年份 / 入场动画 ---------- */
+  /* ---------- 4. 版本号 / 年份 ---------- */
   function initMisc() {
     document.querySelectorAll('#siteVersion').forEach(function (el) {
       el.textContent = VERSION;
@@ -172,6 +112,7 @@ window.YY = (function () {
     });
   }
 
+  /* ---------- 5. 入场动画 ---------- */
   function animate(selector, step) {
     document.querySelectorAll(selector).forEach(function (el, i) {
       el.style.animationDelay = Math.min(i, 9) * (step || 45) + 'ms';
@@ -183,13 +124,8 @@ window.YY = (function () {
   function boot() {
     initTheme();
     initNav();
-    initViewKeys();
     initPageviews();
     initMisc();
-
-    // 直接带 #calendar / #weather 打开时自动展开
-    const h = location.hash.replace('#', '');
-    if (h === 'calendar' || h === 'weather') openView(h, { silent: true });
   }
 
   if (document.readyState === 'loading') {
@@ -200,10 +136,6 @@ window.YY = (function () {
 
   return {
     VERSION: VERSION,
-    openView: openView,
-    closeView: closeViews,
-    viewIsOpen: viewIsOpen,
-    onViewOpen: onViewOpen,
     animate: animate,
     fmtNum: fmtNum
   };

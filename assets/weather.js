@@ -1,14 +1,11 @@
 /* =========================================================
    言一 · 天气
-   首页天气模块 + 天气视图（实时 / 24 小时 / 7 天 / 切地区）
-   数据源：Open-Meteo（免费，无需 API Key，也不需要注册）
+   首页天气模块（#wIcon）+ 天气页面（#wvBig）
+   数据源：Open-Meteo（免费，无需 API Key）
    ========================================================= */
 (function () {
   'use strict';
 
-  const YY = window.YY;
-
-  /* ---------- WMO 天气代码 → 中文 + 图标 ---------- */
   const WMO = {
     0:  { t:'晴',           i:'☀️' },
     1:  { t:'晴间多云',     i:'🌤️' },
@@ -42,7 +39,6 @@
 
   const WEEK = ['日','一','二','三','四','五','六'];
 
-  /* ---------- 预设城市 ---------- */
   const PRESETS = [
     { name:'北京', lat:39.9042, lon:116.4074 },
     { name:'上海', lat:31.2304, lon:121.4737 },
@@ -76,14 +72,6 @@
 
   function info(code) { return WMO[code] || { t:'未知', i:'❔' }; }
 
-  function api(params) {
-    return fetch('https://api.open-meteo.com/v1/forecast?' + params, { cache: 'no-store' })
-      .then(function (r) {
-        if (!r.ok) throw new Error('HTTP ' + r.status);
-        return r.json();
-      });
-  }
-
   function fetchWeather(p) {
     const q = [
       'latitude=' + p.lat,
@@ -94,11 +82,16 @@
       'timezone=auto',
       'forecast_days=7'
     ].join('&');
-    return api(q);
+
+    return fetch('https://api.open-meteo.com/v1/forecast?' + q, { cache: 'no-store' })
+      .then(function (r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      });
   }
 
   /* =========================================================
-     一、首页天气模块
+     一、首页模块
      ========================================================= */
   const mod = {
     icon:  document.getElementById('wIcon'),
@@ -106,8 +99,10 @@
     sub:   document.getElementById('wSub'),
     strip: document.getElementById('wStrip')
   };
+  const hasMod = !!(mod.icon || mod.main);
 
   function renderModule(data, p) {
+    if (!hasMod) return;
     const cur = data.current;
     const w = info(cur.weather_code);
 
@@ -123,7 +118,6 @@
       const dd = data.daily;
       let html = '';
       for (let i = 0; i < Math.min(3, dd.time.length); i++) {
-        const d = new Date(dd.time[i] + 'T00:00:00');
         const ww = info(dd.weather_code[i]);
         const label = i === 0 ? '今天' : (i === 1 ? '明天' : '后天');
         html += '<div class="w-day">'
@@ -138,46 +132,37 @@
   }
 
   function renderModuleError() {
+    if (!hasMod) return;
     if (mod.icon) mod.icon.textContent = '⚠️';
     if (mod.main) mod.main.textContent = '天气不可用';
-    if (mod.sub) mod.sub.textContent = '网络异常，点「详情」重试';
+    if (mod.sub)  mod.sub.textContent = '网络异常，点「详情」重试';
     if (mod.strip) mod.strip.innerHTML = '';
   }
 
-  function load(p, isDefault) {
-    return fetchWeather(p)
-      .then(function (data) {
-        lastData = data;
-        place = p;
-        savePlace(p);
-        renderModule(data, p);
-        renderDetail(data, p);
-        markActivePreset(p.name);
-      })
-      .catch(function () {
-        renderModuleError();
-      });
-  }
-
   /* =========================================================
-     二、天气视图
+     二、详情页
      ========================================================= */
   const detail = {
-    place:  document.getElementById('wvPlace'),
-    big:    document.getElementById('wvBig'),
-    icon:   document.getElementById('wvIcon'),
-    desc:   document.getElementById('wvDesc'),
-    facts:  document.getElementById('wvFacts'),
-    hourly: document.getElementById('wvHourly'),
-    daily:  document.getElementById('wvDaily'),
-    sun:    document.getElementById('wvSun'),
-    chips:  document.getElementById('wvChips'),
-    input:  document.getElementById('wvSearch'),
-    results:document.getElementById('wvResults')
+    place:   document.getElementById('wvPlace'),
+    big:     document.getElementById('wvBig'),
+    icon:    document.getElementById('wvIcon'),
+    desc:    document.getElementById('wvDesc'),
+    facts:   document.getElementById('wvFacts'),
+    hourly:  document.getElementById('wvHourly'),
+    daily:   document.getElementById('wvDaily'),
+    sun:     document.getElementById('wvSun'),
+    chips:   document.getElementById('wvChips'),
+    input:   document.getElementById('wvSearch'),
+    results: document.getElementById('wvResults')
   };
+  const hasDetail = !!detail.big;
+
+  function fact(k, v) {
+    return '<div class="fact"><b>' + v + '</b><span>' + k + '</span></div>';
+  }
 
   function renderDetail(data, p) {
-    if (!detail.big) return;
+    if (!hasDetail) return;
     const cur = data.current;
     const w = info(cur.weather_code);
 
@@ -192,12 +177,13 @@
       fact('风速', cur.wind_speed_10m + ' km/h') +
       fact('降水', (cur.precipitation || 0) + ' mm');
 
-    /* ---- 未来 24 小时（从当前整点开始） ---- */
+    /* ---- 未来 24 小时 ---- */
     if (detail.hourly && data.hourly) {
       const hh = data.hourly;
       const now = new Date();
       let start = hh.time.findIndex(function (t) {
-        return new Date(t).getHours() === now.getHours() && new Date(t).getDate() === now.getDate();
+        const d = new Date(t);
+        return d.getHours() === now.getHours() && d.getDate() === now.getDate();
       });
       if (start < 0) start = 0;
 
@@ -210,7 +196,8 @@
               + '<span class="hr-h">' + (isNow ? '现在' : t.getHours() + ' 时') + '</span>'
               + '<span class="hr-i">' + ww.i + '</span>'
               + '<span class="hr-t">' + Math.round(hh.temperature_2m[i]) + '°</span>'
-              + '<span class="hr-p">' + (hh.precipitation_probability[i] != null ? hh.precipitation_probability[i] + '%' : '') + '</span>'
+              + '<span class="hr-p">' + (hh.precipitation_probability[i] != null
+                                          ? hh.precipitation_probability[i] + '%' : '') + '</span>'
               + '</div>';
       }
       detail.hourly.innerHTML = html;
@@ -229,7 +216,7 @@
         const d = new Date(dd.time[i] + 'T00:00:00');
         const ww = info(dd.weather_code[i]);
         const label = i === 0 ? '今天' : (i === 1 ? '明天' : '周' + WEEK[d.getDay()]);
-        const left = ((dd.temperature_2m_min[i] - lo) / span) * 100;
+        const left  = ((dd.temperature_2m_min[i] - lo) / span) * 100;
         const width = ((dd.temperature_2m_max[i] - dd.temperature_2m_min[i]) / span) * 100;
 
         html += '<div class="dy">'
@@ -238,29 +225,27 @@
               + '<span class="dy-lo">' + Math.round(dd.temperature_2m_min[i]) + '°</span>'
               + '<span class="dy-bar"><i style="left:' + left + '%;width:' + width + '%"></i></span>'
               + '<span class="dy-hi">' + Math.round(dd.temperature_2m_max[i]) + '°</span>'
-              + '<span class="dy-p">' + (dd.precipitation_probability_max[i] != null ? dd.precipitation_probability_max[i] + '%' : '') + '</span>'
+              + '<span class="dy-p">' + (dd.precipitation_probability_max[i] != null
+                                          ? dd.precipitation_probability_max[i] + '%' : '') + '</span>'
               + '</div>';
       }
       detail.daily.innerHTML = html;
 
       if (detail.sun) {
         const s0 = dd.sunrise[0] ? dd.sunrise[0].slice(11, 16) : '--:--';
-        const s1 = dd.sunset[0] ? dd.sunset[0].slice(11, 16) : '--:--';
+        const s1 = dd.sunset[0]  ? dd.sunset[0].slice(11, 16)  : '--:--';
         detail.sun.textContent = '日出 ' + s0 + ' · 日落 ' + s1;
       }
     }
   }
 
-  function fact(k, v) {
-    return '<div class="fact"><b>' + v + '</b><span>' + k + '</span></div>';
-  }
-
-  /* ---- 预设城市按钮 ---- */
+  /* ---- 预设城市 ---- */
   function buildChips() {
     if (!detail.chips) return;
     let html = '';
     PRESETS.forEach(function (p) {
-      html += '<button class="chip" data-name="' + p.name + '" data-lat="' + p.lat + '" data-lon="' + p.lon + '">' + p.name + '</button>';
+      html += '<button class="chip" data-name="' + p.name + '" data-lat="' + p.lat +
+              '" data-lon="' + p.lon + '">' + p.name + '</button>';
     });
     detail.chips.innerHTML = html;
   }
@@ -280,11 +265,11 @@
     });
   }
 
-  /* ---- 搜索任意地区（Open-Meteo 地理编码，免费无 Key） ---- */
+  /* ---- 搜索地区 ---- */
   let searchTimer = null;
 
   function doSearch(q) {
-    if (!q || q.length < 1) {
+    if (!q) {
       if (detail.results) detail.results.innerHTML = '';
       return;
     }
@@ -300,8 +285,8 @@
         }
         detail.results.innerHTML = list.map(function (r) {
           const sub = [r.admin1, r.country].filter(Boolean).join(' · ');
-          return '<button class="wv-result" data-name="' + r.name + '" data-lat="' + r.latitude + '" data-lon="' + r.longitude + '">'
-               + '<b>' + r.name + '</b><span>' + sub + '</span></button>';
+          return '<button class="wv-result" data-name="' + r.name + '" data-lat="' + r.latitude +
+                 '" data-lon="' + r.longitude + '"><b>' + r.name + '</b><span>' + sub + '</span></button>';
         }).join('');
       })
       .catch(function () {
@@ -335,19 +320,36 @@
   }
 
   /* =========================================================
-     三、初始化：优先浏览器定位，失败回退上次地点或默认城市
+     三、加载
      ========================================================= */
-  const detailOpen = document.getElementById('weatherDetail');
+  function load(p) {
+    return fetchWeather(p)
+      .then(function (data) {
+        lastData = data;
+        place = p;
+        savePlace(p);
+        renderModule(data, p);
+        renderDetail(data, p);
+        markActivePreset(p.name);
+      })
+      .catch(function () {
+        renderModuleError();
+      });
+  }
 
   function boot() {
+    if (!hasMod && !hasDetail) return;
+
     buildChips();
 
-    if (detailOpen) {
-      detailOpen.addEventListener('click', function () { YY.openView('weather'); });
+    // 详情页：优先用上次城市 / 默认城市（不用定位，避免每次弹权限）
+    if (hasDetail && !hasMod) {
+      load(place || DEFAULT_PLACE);
+      setInterval(function () { load(place || DEFAULT_PLACE); }, 10 * 60 * 1000);
+      return;
     }
 
-    const target = place || DEFAULT_PLACE;
-
+    // 首页：首次访问尝试定位，失败回退
     if (!place && navigator.geolocation) {
       let settled = false;
       const timer = setTimeout(function () {
@@ -370,10 +372,9 @@
         { timeout: 3500, maximumAge: 600000 }
       );
     } else {
-      load(target);
+      load(place || DEFAULT_PLACE);
     }
 
-    // 每 10 分钟刷新
     setInterval(function () { load(place || DEFAULT_PLACE); }, 10 * 60 * 1000);
   }
 

@@ -1,6 +1,8 @@
 /* =========================================================
    言一 · 日历
-   农历 / 干支 / 节气 / 节日 引擎  +  首页日期模块  +  日历视图
+   农历 / 干支 / 节气 / 节日 引擎
+   + 首页日期模块（若存在 #modClock）
+   + 日历页面（若存在 #calScroller）
    ========================================================= */
 (function () {
   'use strict';
@@ -8,11 +10,9 @@
   const YY = window.YY;
 
   /* =========================================================
-     一、农历数据表（1900 – 2100，标准表）
-     每一年一个十六进制数：
-       低 4 位  = 闰月月份（0 = 无闰月）
-       0x10000 位 = 闰月天数（1 = 30 天 / 0 = 29 天）
-       第 4–15 位  = 1–12 月是大月（30 天）还是小月（29 天）
+     一、农历数据表（1900 – 2100）
+     低 4 位 = 闰月月份；0x10000 位 = 闰月天数；
+     4–15 位 = 1–12 月大/小
      ========================================================= */
   const LUNAR_INFO = [
     0x04bd8,0x04ae0,0x0a570,0x054d5,0x0d260,0x0d950,0x16554,0x056a0,0x09ad0,0x055d2,
@@ -45,16 +45,13 @@
   const WEEK   = ['日','一','二','三','四','五','六'];
 
   function leapMonth(y) { return LUNAR_INFO[y - 1900] & 0xf; }
-
   function leapDays(y) {
     if (!leapMonth(y)) return 0;
     return (LUNAR_INFO[y - 1900] & 0x10000) ? 30 : 29;
   }
-
   function monthDays(y, m) {
     return (LUNAR_INFO[y - 1900] & (0x10000 >> m)) ? 30 : 29;
   }
-
   function yearDays(y) {
     let sum = 348;
     for (let i = 0x8000; i > 0x8; i >>= 1) {
@@ -63,7 +60,6 @@
     return sum + leapDays(y);
   }
 
-  /* ---- 公历 → 农历 ---- */
   function solarToLunar(y, m, d) {
     let offset = (Date.UTC(y, m - 1, d) - Date.UTC(1900, 0, 31)) / 86400000;
     let i, temp = 0;
@@ -109,14 +105,16 @@
 
   function ganzhi(y) {
     const i = (y - 4) % 60;
-    return { gan: GAN[((i % 10) + 10) % 10], zhi: ZHI[((i % 12) + 12) % 12], animal: ANIMAL[((i % 12) + 12) % 12] };
+    return {
+      gan:    GAN[((i % 10) + 10) % 10],
+      zhi:    ZHI[((i % 12) + 12) % 12],
+      animal: ANIMAL[((i % 12) + 12) % 12]
+    };
   }
 
   /* =========================================================
-     二、二十四节气
-     用「寿星公式」：日 = [Y×0.2422 + C] − [Y/4]
-     Y = 年份后两位，C 为 21 世纪的常数。
-     已知少数年份有 ±1 天偏差，如有需要可在 TERM_FIX 里手改。
+     二、二十四节气（寿星公式）
+     日 = [Y×0.2422 + C] − [Y/4]，Y = 年份后两位
      ========================================================= */
   const TERMS = ['小寒','大寒','立春','雨水','惊蛰','春分','清明','谷雨',
                  '立夏','小满','芒种','夏至','小暑','大暑','立秋','处暑',
@@ -126,10 +124,8 @@
                   5.52,21.04,5.678,21.37,7.108,22.83,7.5,23.13,
                   7.646,23.042,8.318,23.438,7.438,22.36,7.18,21.94];
 
-  // 例外修正：{ '年份-节气序号': 正确日 }
-  const TERM_FIX = {
-    // '2026-2': 4,
-  };
+  // 已知偏差可在此手改，例如 '2026-2': 4
+  const TERM_FIX = {};
 
   function termDay(year, n) {
     const fix = TERM_FIX[year + '-' + n];
@@ -149,11 +145,9 @@
 
   /* =========================================================
      三、节日
-     ▸ 公历固定节日 + 农历节日都自动算。
-     ▸ 「调休安排」（哪天放假、哪天补班）每年由国务院公布，
-       公式算不出来。要精确显示放假/补班，请在下面 HOLIDAY_PLAN
-       里手填，格式：'2025-10-01': { name:'国庆节', off:true }
-       不填也不影响节日名和放假日期提示。
+     农历和公历节日自动算。
+     调休安排（放假 / 补班）每年由国务院公布，公式算不出来，
+     需要精确显示时手填 HOLIDAY_PLAN。
      ========================================================= */
   const SOLAR_FEST = {
     '1-1':'元旦', '2-14':'情人节', '3-8':'妇女节', '3-12':'植树节',
@@ -169,17 +163,18 @@
   };
 
   const HOLIDAY_PLAN = {
-    // '2025-10-01': { name:'国庆节', off:true },
-    // '2025-10-11': { name:'补班', off:false },
+    // '2025-10-01': { name:'国庆节', off:true  },
+    // '2025-10-11': { name:'补班',   off:false },
   };
 
   function pad(n) { return String(n).padStart(2, '0'); }
-  function key(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+  function dayKey(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
   function sameDay(a, b) {
-    return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+    return a.getFullYear() === b.getFullYear()
+        && a.getMonth() === b.getMonth()
+        && a.getDate() === b.getDate();
   }
 
-  /* ---- 一天的完整信息 ---- */
   function dayInfo(date, today) {
     const y = date.getFullYear(), m = date.getMonth(), d = date.getDate();
     const l = solarToLunar(y, m + 1, d);
@@ -189,15 +184,14 @@
     const lk = l.month + '-' + l.day;
     if (!l.isLeap && LUNAR_FEST[lk]) fest = LUNAR_FEST[lk];
 
-    // 除夕：明天是正月初一
+    // 除夕：次日为正月初一
     const next = new Date(y, m, d + 1);
     const nl = solarToLunar(next.getFullYear(), next.getMonth() + 1, next.getDate());
     if (!nl.isLeap && nl.month === 1 && nl.day === 1) fest = '除夕';
 
-    // 清明是节气，也是法定节日
     if (term === '清明') fest = '清明节';
 
-    const plan = HOLIDAY_PLAN[key(date)] || null;
+    const plan = HOLIDAY_PLAN[dayKey(date)] || null;
     if (plan && plan.name) fest = plan.name;
 
     let label;
@@ -217,7 +211,6 @@
     };
   }
 
-  /* ---- 找下一个节气 / 下一个节日 ---- */
   function nextTerm(today) {
     for (let k = 1; k <= 32; k++) {
       const d = new Date(today.getFullYear(), today.getMonth(), today.getDate() + k);
@@ -237,351 +230,333 @@
   }
 
   /* =========================================================
-     四、首页日期模块
+     四、首页日期模块（#modClock 存在时启用）
      ========================================================= */
-  const el = {
-    clock:  document.getElementById('modClock'),
-    date:   document.getElementById('modDate'),
-    lunar:  document.getElementById('modLunar'),
-    tags:   document.getElementById('modTags')
-  };
+  function initHome() {
+    const el = {
+      clock: document.getElementById('modClock'),
+      date:  document.getElementById('modDate'),
+      lunar: document.getElementById('modLunar'),
+      tags:  document.getElementById('modTags')
+    };
+    if (!el.clock && !el.date) return;
 
-  function renderToday() {
-    const now = new Date();
-    if (el.clock) {
-      el.clock.textContent = pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
+    let lastDay = '';
+
+    function render() {
+      const now = new Date();
+
+      if (el.clock) {
+        el.clock.textContent =
+          pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
+      }
+
+      // 日期 / 农历 / 标签 每天只需重算一次
+      const k = dayKey(now);
+      if (k === lastDay) return;
+      lastDay = k;
+
+      const gz = ganzhi(now.getFullYear());
+      const l = solarToLunar(now.getFullYear(), now.getMonth() + 1, now.getDate());
+
+      if (el.date) {
+        el.date.textContent =
+          now.getFullYear() + ' 年 ' + (now.getMonth() + 1) + ' 月 ' + now.getDate() + ' 日' +
+          ' 星期' + WEEK[now.getDay()];
+      }
+
+      if (el.lunar) {
+        el.lunar.textContent =
+          '农历' + gz.gan + gz.zhi + '年 ' +
+          (l.isLeap ? '闰' : '') + LMON[l.month - 1] + '月' +
+          (l.day === 1 ? '' : lunarDayName(l.day)) +
+          ' · ' + gz.animal + '年';
+      }
+
+      if (el.tags) {
+        const cur = dayInfo(now, now);
+        const nt = nextTerm(now);
+        const nf = nextFest(now);
+        const parts = [];
+
+        if (cur.fest) parts.push('<span class="tag tag--fest">今天 ' + cur.fest + '</span>');
+        else if (cur.term) parts.push('<span class="tag tag--2">今天 ' + cur.term + '</span>');
+
+        if (nt) parts.push('<span class="tag tag--2">' + nt.name + ' · ' + nt.days + ' 天后</span>');
+        if (nf) parts.push('<span class="tag tag--fest">' + nf.name + ' · ' + nf.days + ' 天后</span>');
+
+        el.tags.innerHTML = parts.join('');
+      }
     }
 
-    if (!el.date && !el.lunar) return;
-
-    const gz = ganzhi(now.getFullYear());
-    const l = solarToLunar(now.getFullYear(), now.getMonth() + 1, now.getDate());
-
-    if (el.date) {
-      el.date.textContent =
-        now.getFullYear() + ' 年 ' + (now.getMonth() + 1) + ' 月 ' + now.getDate() + ' 日' +
-        ' 星期' + WEEK[now.getDay()];
-    }
-
-    if (el.lunar) {
-      el.lunar.textContent =
-        '农历' + gz.gan + gz.zhi + '年 ' +
-        (l.isLeap ? '闰' : '') + LMON[l.month - 1] + '月' +
-        (l.day === 1 ? '' : lunarDayName(l.day)) +
-        (l.day === 1 ? '' : '') +
-        ' · ' + gz.animal + '年';
-    }
-
-    if (el.tags) {
-      const cur = dayInfo(now, now);
-      const nt = nextTerm(now);
-      const nf = nextFest(now);
-      const parts = [];
-
-      if (cur.fest) parts.push('<span class="tag tag--fest">今天 ' + cur.fest + '</span>');
-      else if (cur.term) parts.push('<span class="tag tag--2">今天 ' + cur.term + '</span>');
-
-      if (nt) parts.push('<span class="tag tag--2">' + nt.name + ' · ' + nt.days + ' 天后</span>');
-      if (nf) parts.push('<span class="tag tag--fest">' + nf.name + ' · ' + nf.days + ' 天后</span>');
-
-      el.tags.innerHTML = parts.join('');
-    }
+    render();
+    setInterval(render, 1000);
   }
 
   /* =========================================================
-     五、日历视图：日 → 月 → 年 三级缩放 + 上下拖动
+     五、日历页面（#calScroller 存在时启用）
      ========================================================= */
-  const scroller = document.getElementById('calScroller');
-  const levelDay = document.getElementById('calLevelDay');
-  const levelMon = document.getElementById('calLevelMonth');
-  const levelYear = document.getElementById('calLevelYear');
-  const monthsWrap = document.getElementById('calMonths');
-  const yearsWrap = document.getElementById('calYears');
-  const titleBtn = document.getElementById('calTitle');
+  function initCalendarPage() {
+    const scroller  = document.getElementById('calScroller');
+    const levelDay  = document.getElementById('calLevelDay');
+    const levelMon  = document.getElementById('calLevelMonth');
+    const levelYear = document.getElementById('calLevelYear');
+    const monthsWrap = document.getElementById('calMonths');
+    const yearsWrap  = document.getElementById('calYears');
+    const titleBtn   = document.getElementById('calTitle');
+    const todayBtn   = document.getElementById('calToday');
 
-  if (!scroller || !titleBtn) return;
+    const today = new Date();
+    const baseYear  = today.getFullYear();
+    const baseMonth = today.getMonth();
 
-  const today = new Date();
-  const baseYear = today.getFullYear();
-  const baseMonth = today.getMonth();
+    const BACK = 36, FWD = 36;
 
-  const BACK = 36;
-  const FWD  = 36;
+    let level = 'day';
+    let activeYear  = baseYear;
+    let activeMonth = baseMonth;
+    let activeIndex = BACK;
+    let snapTimer = null;
+    let drag = null;
+    let dragged = false;
 
-  let level = 'day';
-  let activeYear = baseYear;
-  let activeMonth = baseMonth;
-  let activeIndex = BACK;
-  let snapTimer = null;
-  let dragged = false;
-
-  const monthKeys = [];
-  for (let i = -BACK; i <= FWD; i++) {
-    const d = new Date(baseYear, baseMonth + i, 1);
-    monthKeys.push({ year: d.getFullYear(), month: d.getMonth() });
-  }
-
-  /* ---- 生成一个月面板 ---- */
-  function buildPanel(y, m) {
-    const first = new Date(y, m, 1);
-    const padCount = first.getDay();
-    const dim = new Date(y, m + 1, 0).getDate();
-
-    let html = '';
-    for (let i = 0; i < padCount; i++) html += '<span class="cal-cell is-out"></span>';
-
-    for (let d = 1; d <= dim; d++) {
-      const date = new Date(y, m, d);
-      const info = dayInfo(date, today);
-      const cls = ['cal-cell'];
-      if (info.isToday) cls.push('is-today');
-      if (date.getDay() === 0 || date.getDay() === 6) cls.push('is-weekend');
-      if (info.fest) cls.push('is-fest');
-      else if (info.term) cls.push('is-term');
-      if (info.plan && info.plan.off === false) cls.push('is-work');
-      html += '<div class="' + cls.join(' ') + '" title="' + info.label + '">'
-            + '<b>' + d + '</b><i>' + info.label + '</i></div>';
+    const monthKeys = [];
+    for (let i = -BACK; i <= FWD; i++) {
+      const d = new Date(baseYear, baseMonth + i, 1);
+      monthKeys.push({ year: d.getFullYear(), month: d.getMonth() });
     }
 
-    const total = padCount + dim;
-    for (let i = total; i < 42; i++) html += '<span class="cal-cell is-out"></span>';
+    /* ---- 面板构造 ---- */
+    function buildPanel(y, m) {
+      const padCount = new Date(y, m, 1).getDay();
+      const dim = new Date(y, m + 1, 0).getDate();
 
-    const panel = document.createElement('div');
-    panel.className = 'cal-panel';
-    panel.dataset.year = y;
-    panel.dataset.month = m;
-    panel.innerHTML = html;
-    return panel;
-  }
+      let html = '';
+      for (let i = 0; i < padCount; i++) html += '<span class="cal-cell is-out"></span>';
 
-  /* ---- 生成缩略月（月视图用） ---- */
-  function miniMonth(y, m) {
-    const first = new Date(y, m, 1);
-    const padCount = first.getDay();
-    const dim = new Date(y, m + 1, 0).getDate();
-    let s = '<span class="mini-grid">';
-    for (let i = 0; i < padCount; i++) s += '<span class="mini-d is-out"></span>';
-    for (let d = 1; d <= dim; d++) {
-      const date = new Date(y, m, d);
-      const info = dayInfo(date, today);
-      const cls = ['mini-d'];
-      if (info.fest) cls.push('is-fest');
-      else if (info.term) cls.push('is-term');
-      if (info.isToday) cls.push('is-today');
-      s += '<span class="' + cls.join(' ') + '">' + d + '</span>';
+      for (let d = 1; d <= dim; d++) {
+        const date = new Date(y, m, d);
+        const info = dayInfo(date, today);
+        const cls = ['cal-cell'];
+        if (info.isToday) cls.push('is-today');
+        if (date.getDay() === 0 || date.getDay() === 6) cls.push('is-weekend');
+        if (info.fest) cls.push('is-fest');
+        else if (info.term) cls.push('is-term');
+        if (info.plan && info.plan.off === false) cls.push('is-work');
+
+        html += '<div class="' + cls.join(' ') + '" title="' + info.label + '">'
+              + '<b>' + d + '</b><i>' + info.label + '</i></div>';
+      }
+
+      const total = padCount + dim;
+      for (let i = total; i < 42; i++) html += '<span class="cal-cell is-out"></span>';
+
+      const panel = document.createElement('div');
+      panel.className = 'cal-panel';
+      panel.dataset.year = y;
+      panel.dataset.month = m;
+      panel.innerHTML = html;
+      return panel;
     }
-    return s + '</span>';
-  }
 
-  /* ---- 构建整个日视图 ---- */
-  (function buildDayLevel() {
-    const frag = document.createDocumentFragment();
-    monthKeys.forEach(function (k) {
-      frag.appendChild(buildPanel(k.year, k.month));
+    function miniMonth(y, m) {
+      const padCount = new Date(y, m, 1).getDay();
+      const dim = new Date(y, m + 1, 0).getDate();
+      let s = '<span class="mini-grid">';
+      for (let i = 0; i < padCount; i++) s += '<span class="mini-d is-out"></span>';
+      for (let d = 1; d <= dim; d++) {
+        const date = new Date(y, m, d);
+        const info = dayInfo(date, today);
+        const cls = ['mini-d'];
+        if (info.fest) cls.push('is-fest');
+        else if (info.term) cls.push('is-term');
+        if (info.isToday) cls.push('is-today');
+        s += '<span class="' + cls.join(' ') + '">' + d + '</span>';
+      }
+      return s + '</span>';
+    }
+
+    (function buildDayLevel() {
+      const frag = document.createDocumentFragment();
+      monthKeys.forEach(function (k) { frag.appendChild(buildPanel(k.year, k.month)); });
+      scroller.appendChild(frag);
+    })();
+
+    /* ---- 滚动与对齐 ---- */
+    function panelHeight() { return scroller.clientHeight || 1; }
+    function panelAt(i) { return scroller.children[i]; }
+    function prefersReduced() {
+      return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    }
+
+    function scrollToIndex(i, smooth) {
+      const max = scroller.children.length - 1;
+      i = Math.max(0, Math.min(max, i));
+      activeIndex = i;
+      const top = i * panelHeight();
+      if (smooth && !prefersReduced()) scroller.scrollTo({ top: top, behavior: 'smooth' });
+      else scroller.scrollTop = top;
+      syncFromIndex();
+    }
+
+    function syncFromIndex() {
+      const p = panelAt(activeIndex);
+      if (!p) return;
+      activeYear  = Number(p.dataset.year);
+      activeMonth = Number(p.dataset.month);
+      if (level === 'day') setTitle(activeYear + ' 年 ' + (activeMonth + 1) + ' 月');
+    }
+
+    function indexOfMonth(y, m) {
+      for (let i = 0; i < monthKeys.length; i++) {
+        if (monthKeys[i].year === y && monthKeys[i].month === m) return i;
+      }
+      return -1;
+    }
+
+    function setTitle(t) { titleBtn.textContent = t; }
+
+    /* ---- 三级缩放 ---- */
+    function setLevel(next) {
+      level = next;
+      levelDay.hidden  = next !== 'day';
+      levelMon.hidden  = next !== 'month';
+      levelYear.hidden = next !== 'year';
+
+      if (next === 'day') {
+        setTitle(activeYear + ' 年 ' + (activeMonth + 1) + ' 月');
+        requestAnimationFrame(function () {
+          const i = indexOfMonth(activeYear, activeMonth);
+          if (i >= 0) scrollToIndex(i, false);
+        });
+      } else if (next === 'month') {
+        setTitle(activeYear + ' 年');
+        buildMonthLevel();
+        const on = monthsWrap.querySelector('.month-cell.is-on');
+        if (on) requestAnimationFrame(function () { on.scrollIntoView({ block: 'nearest' }); });
+      } else {
+        setTitle('选择年份');
+        buildYearLevel();
+        const on = yearsWrap.querySelector('.year-cell.is-on');
+        if (on) requestAnimationFrame(function () { on.scrollIntoView({ block: 'center' }); });
+      }
+    }
+
+    function buildMonthLevel() {
+      let html = '';
+      for (let m = 0; m < 12; m++) {
+        html += '<button class="month-cell' + (m === activeMonth ? ' is-on' : '') + '" data-month="' + m + '">'
+              + '<span class="month-cell-t">' + (m + 1) + ' 月</span>'
+              + miniMonth(activeYear, m)
+              + '</button>';
+      }
+      monthsWrap.innerHTML = html;
+    }
+
+    function buildYearLevel() {
+      let html = '';
+      for (let y = 1901; y <= 2100; y++) {
+        html += '<button class="year-cell' + (y === activeYear ? ' is-on' : '') + '" data-year="' + y + '">' + y + '</button>';
+      }
+      yearsWrap.innerHTML = html;
+    }
+
+    /* ---- 交互 ---- */
+    titleBtn.addEventListener('click', function () {
+      if (level === 'day') setLevel('month');
+      else if (level === 'month') setLevel('year');
     });
-    scroller.appendChild(frag);
-  })();
 
-  function panelHeight() {
-    return scroller.clientHeight || 1;
-  }
+    monthsWrap.addEventListener('click', function (e) {
+      const btn = e.target.closest('.month-cell');
+      if (!btn) return;
+      activeMonth = Number(btn.dataset.month);
+      setLevel('day');
+    });
 
-  function panelAt(i) {
-    return scroller.children[i];
-  }
+    yearsWrap.addEventListener('click', function (e) {
+      const btn = e.target.closest('.year-cell');
+      if (!btn) return;
+      activeYear = Number(btn.dataset.year);
+      setLevel('month');
+    });
 
-  function scrollToIndex(i, smooth) {
-    const max = scroller.children.length - 1;
-    i = Math.max(0, Math.min(max, i));
-    activeIndex = i;
-    const top = i * panelHeight();
-    if (smooth && !prefersReduced()) scroller.scrollTo({ top: top, behavior: 'smooth' });
-    else scroller.scrollTop = top;
-    syncFromIndex();
-  }
-
-  function prefersReduced() {
-    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  }
-
-  function syncFromIndex() {
-    const p = panelAt(activeIndex);
-    if (!p) return;
-    activeYear = Number(p.dataset.year);
-    activeMonth = Number(p.dataset.month);
-    if (level === 'day') setTitle(activeYear + ' 年 ' + (activeMonth + 1) + ' 月');
-  }
-
-  function indexOfMonth(y, m) {
-    for (let i = 0; i < monthKeys.length; i++) {
-      if (monthKeys[i].year === y && monthKeys[i].month === m) return i;
-    }
-    return -1;
-  }
-
-  /* ---- 标题 ---- */
-  function setTitle(t) { titleBtn.textContent = t; }
-
-  /* ---- 级别切换 ---- */
-  function setLevel(next) {
-    level = next;
-    levelDay.hidden = next !== 'day';
-    levelMon.hidden = next !== 'month';
-    levelYear.hidden = next !== 'year';
-
-    if (next === 'day') {
-      setTitle(activeYear + ' 年 ' + (activeMonth + 1) + ' 月');
-      requestAnimationFrame(function () {
-        const i = indexOfMonth(activeYear, activeMonth);
-        if (i >= 0) scrollToIndex(i, false);
-      });
-    } else if (next === 'month') {
-      setTitle(activeYear + ' 年');
-      buildMonthLevel();
-      const on = monthsWrap.querySelector('.month-cell.is-on');
-      if (on) requestAnimationFrame(function () { on.scrollIntoView({ block: 'nearest' }); });
-    } else {
-      setTitle('选择年份');
-      buildYearLevel();
-      const on = yearsWrap.querySelector('.year-cell.is-on');
-      if (on) requestAnimationFrame(function () { on.scrollIntoView({ block: 'center' }); });
-    }
-  }
-
-  function buildMonthLevel() {
-    let html = '';
-    for (let m = 0; m < 12; m++) {
-      html += '<button class="month-cell' + (m === activeMonth ? ' is-on' : '') + '" data-month="' + m + '">'
-            + '<span class="month-cell-t">' + (m + 1) + ' 月</span>'
-            + miniMonth(activeYear, m)
-            + '</button>';
-    }
-    monthsWrap.innerHTML = html;
-  }
-
-  function buildYearLevel() {
-    let html = '';
-    for (let y = 1901; y <= 2100; y++) {
-      html += '<button class="year-cell' + (y === activeYear ? ' is-on' : '') + '" data-year="' + y + '">' + y + '</button>';
-    }
-    yearsWrap.innerHTML = html;
-  }
-
-  /* ---- 标题点击：逐级放大 ---- */
-  titleBtn.addEventListener('click', function () {
-    if (level === 'day') setLevel('month');
-    else if (level === 'month') setLevel('year');
-  });
-
-  /* ---- 月视图点击 ---- */
-  monthsWrap.addEventListener('click', function (e) {
-    const btn = e.target.closest('.month-cell');
-    if (!btn) return;
-    activeMonth = Number(btn.dataset.month);
-    setLevel('day');
-  });
-
-  /* ---- 年视图点击 ---- */
-  yearsWrap.addEventListener('click', function (e) {
-    const btn = e.target.closest('.year-cell');
-    if (!btn) return;
-    activeYear = Number(btn.dataset.year);
-    setLevel('month');
-  });
-
-  /* ---- 回到今天 ---- */
-  const todayBtn = document.getElementById('calToday');
-  if (todayBtn) {
     todayBtn.addEventListener('click', function () {
       activeYear = baseYear;
       activeMonth = baseMonth;
       setLevel('day');
+      requestAnimationFrame(function () { scrollToIndex(BACK, true); });
     });
-  }
 
-  /* ---- 返回 ---- */
-  const backBtn = document.getElementById('calBack');
-  if (backBtn) {
-    backBtn.addEventListener('click', function () {
-      if (level === 'day') YY.closeView();
-      else if (level === 'month') setLevel('day');
-      else setLevel('month');
+    /* ---- 鼠标拖动翻月 ---- */
+    scroller.addEventListener('pointerdown', function (e) {
+      if (e.pointerType !== 'mouse' || e.button !== 0) return;
+      drag = { y: e.clientY, top: scroller.scrollTop, moved: false };
+      dragged = false;
+      scroller.classList.add('is-dragging');
+      scroller.style.scrollSnapType = 'none';
+      try { scroller.setPointerCapture(e.pointerId); } catch (err) {}
     });
-  }
 
-  /* ---- 鼠标拖动翻月 ---- */
-  let drag = null;
+    scroller.addEventListener('pointermove', function (e) {
+      if (!drag) return;
+      const dy = e.clientY - drag.y;
+      if (Math.abs(dy) > 3) { drag.moved = true; dragged = true; }
+      if (drag.moved) scroller.scrollTop = drag.top - dy;
+    });
 
-  scroller.addEventListener('pointerdown', function (e) {
-    if (e.pointerType !== 'mouse' || e.button !== 0) return;
-    drag = { y: e.clientY, top: scroller.scrollTop, moved: false };
-    dragged = false;
-    scroller.classList.add('is-dragging');
-    scroller.style.scrollSnapType = 'none';
-    try { scroller.setPointerCapture(e.pointerId); } catch (err) {}
-  });
-
-  scroller.addEventListener('pointermove', function (e) {
-    if (!drag) return;
-    const dy = e.clientY - drag.y;
-    if (Math.abs(dy) > 3) { drag.moved = true; dragged = true; }
-    if (drag.moved) scroller.scrollTop = drag.top - dy;
-  });
-
-  function endDrag() {
-    if (!drag) return;
-    const wasMoved = drag.moved;
-    drag = null;
-    scroller.classList.remove('is-dragging');
-    scroller.style.scrollSnapType = '';
-    if (wasMoved) {
-      const h = panelHeight();
-      const idx = Math.round(scroller.scrollTop / h);
-      scrollToIndex(idx, true);
-      setTimeout(function () { dragged = false; }, 400);
-    }
-  }
-
-  scroller.addEventListener('pointerup', endDrag);
-  scroller.addEventListener('pointercancel', endDrag);
-  scroller.addEventListener('pointerleave', function () { if (drag) endDrag(); });
-
-  /* ---- 触摸/滚轮滚动时同步标题（防抖） ---- */
-  scroller.addEventListener('scroll', function () {
-    if (drag) return;
-    if (snapTimer) clearTimeout(snapTimer);
-    snapTimer = setTimeout(function () {
-      const h = panelHeight();
-      const idx = Math.round(scroller.scrollTop / h);
-      if (idx !== activeIndex) {
-        activeIndex = Math.max(0, Math.min(scroller.children.length - 1, idx));
-        syncFromIndex();
+    function endDrag() {
+      if (!drag) return;
+      const moved = drag.moved;
+      drag = null;
+      scroller.classList.remove('is-dragging');
+      scroller.style.scrollSnapType = '';
+      if (moved) {
+        scrollToIndex(Math.round(scroller.scrollTop / panelHeight()), true);
+        setTimeout(function () { dragged = false; }, 400);
       }
-    }, 90);
-  }, { passive: true });
+    }
 
-  /* ---- 窗口尺寸变化时重新对齐 ---- */
-  window.addEventListener('resize', function () {
-    if (level !== 'day') return;
-    scroller.scrollTop = activeIndex * panelHeight();
-  });
+    scroller.addEventListener('pointerup', endDrag);
+    scroller.addEventListener('pointercancel', endDrag);
+    scroller.addEventListener('pointerleave', function () { if (drag) endDrag(); });
 
-  /* ---- 打开视图时对齐到当前月 ---- */
-  YY.onViewOpen('calendar', function () {
-    level = 'day';
-    levelDay.hidden = false;
-    levelMon.hidden = true;
-    levelYear.hidden = true;
-    requestAnimationFrame(function () {
-      const i = indexOfMonth(activeYear, activeMonth);
-      scrollToIndex(i >= 0 ? i : BACK, false);
+    /* ---- 滚动同步标题 ---- */
+    scroller.addEventListener('scroll', function () {
+      if (drag) return;
+      if (snapTimer) clearTimeout(snapTimer);
+      snapTimer = setTimeout(function () {
+        const idx = Math.round(scroller.scrollTop / panelHeight());
+        if (idx !== activeIndex) {
+          activeIndex = Math.max(0, Math.min(scroller.children.length - 1, idx));
+          syncFromIndex();
+        }
+      }, 90);
+    }, { passive: true });
+
+    window.addEventListener('resize', function () {
+      if (level !== 'day') return;
+      scroller.scrollTop = activeIndex * panelHeight();
     });
-  });
+
+    /* ---- 首次对齐 ---- */
+    requestAnimationFrame(function () {
+      scrollToIndex(BACK, false);
+      setTitle(activeYear + ' 年 ' + (activeMonth + 1) + ' 月');
+    });
+  }
 
   /* =========================================================
-     六、启动时钟
+     六、启动
      ========================================================= */
-  renderToday();
-  setInterval(renderToday, 1000);
+  initHome();
+  if (document.getElementById('calScroller')) initCalendarPage();
+
+  // 供外部使用（暂未用到，留给以后）
+  window.YYCal = {
+    solarToLunar: solarToLunar,
+    termOfDate: termOfDate,
+    dayInfo: dayInfo
+  };
 
 })();
