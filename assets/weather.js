@@ -72,6 +72,14 @@
 
   function info(code) { return WMO[code] || { t:'未知', i:'❔' }; }
 
+  /* 新插入的元素依次入场（配合 CSS 的 backwards 动画） */
+  function stagger(container, step) {
+    if (!container) return;
+    Array.prototype.forEach.call(container.children, function (el, i) {
+      el.style.animationDelay = (Math.min(i, 24) * (step || 22)) + 'ms';
+    });
+  }
+
   function fetchWeather(p) {
     const q = [
       'latitude=' + p.lat,
@@ -128,6 +136,7 @@
               + '</div>';
       }
       mod.strip.innerHTML = html;
+      stagger(mod.strip, 70);
     }
   }
 
@@ -176,6 +185,7 @@
       fact('湿度', cur.relative_humidity_2m + '%') +
       fact('风速', cur.wind_speed_10m + ' km/h') +
       fact('降水', (cur.precipitation || 0) + ' mm');
+    stagger(detail.facts, 60);
 
     /* ---- 未来 24 小时 ---- */
     if (detail.hourly && data.hourly) {
@@ -201,6 +211,7 @@
               + '</div>';
       }
       detail.hourly.innerHTML = html;
+      stagger(detail.hourly, 20);
     }
 
     /* ---- 7 天 ---- */
@@ -230,6 +241,7 @@
               + '</div>';
       }
       detail.daily.innerHTML = html;
+      stagger(detail.daily, 45);
 
       if (detail.sun) {
         const s0 = dd.sunrise[0] ? dd.sunrise[0].slice(11, 16) : '--:--';
@@ -288,6 +300,7 @@
           return '<button class="wv-result" data-name="' + r.name + '" data-lat="' + r.latitude +
                  '" data-lon="' + r.longitude + '"><b>' + r.name + '</b><span>' + sub + '</span></button>';
         }).join('');
+        stagger(detail.results, 34);
       })
       .catch(function () {
         if (detail.results) detail.results.innerHTML = '<p class="wv-empty">搜索失败，请稍后再试</p>';

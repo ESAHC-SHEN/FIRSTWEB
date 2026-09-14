@@ -3,11 +3,17 @@
    农历 / 干支 / 节气 / 节日 引擎
    + 首页日期模块（若存在 #modClock）
    + 日历页面（若存在 #calScroller）
+   version beta 0.20
+   ---------------------------------------------------------
+   本次修正：
+   1. 日 / 月 / 年 三级视图互相堆叠（hidden 被 flex 类覆盖）→ 用
+      .cal-level[hidden]{display:none!important} + JS 显式切换。
+   2. 首屏一次性渲染 73 个月 × 42 格导致卡顿 → 面板窗口化（只渲染
+      可视区 ±2 个面板），农历换算加缓存，滚动同步改为 rAF。
+   3. 选中日期时下方内容错位 → 详情卡改为浮层，不改变日历可用高度。
    ========================================================= */
 (function () {
   'use strict';
-
-  const YY = window.YY;
 
   /* =========================================================
      一、农历数据表（1900 – 2100）
@@ -18,23 +24,23 @@
     0x04bd8,0x04ae0,0x0a570,0x054d5,0x0d260,0x0d950,0x16554,0x056a0,0x09ad0,0x055d2,
     0x04ae0,0x0a5b6,0x0a4d0,0x0d250,0x1d255,0x0b540,0x0d6a0,0x0ada2,0x095b0,0x14977,
     0x04970,0x0a4b0,0x0b4b5,0x06a50,0x06d40,0x1ab54,0x02b60,0x09570,0x052f2,0x04970,
-    0x06566,0x0d4a0,0x0ea50,0x06e95,0x05ad0,0x02b60,0x186e3,0x092e0,0x1c8d7,0x0c950,
-    0x0d4a0,0x1d8a6,0x0b550,0x056a0,0x1a5b4,0x025d0,0x092d0,0x122b2,0x0a950,0x0b557,
+    0x06566,0x0d4a0,0x0ea50,0x16a95,0x05ad0,0x02b60,0x186e3,0x092e0,0x1c8d7,0x0c950,
+    0x0d4a0,0x1d8a6,0x0b550,0x056a0,0x1a5b4,0x025d0,0x092d0,0x0d2b2,0x0a950,0x0b557,
     0x06ca0,0x0b550,0x15355,0x04da0,0x0a5b0,0x14573,0x052b0,0x0a9a8,0x0e950,0x06aa0,
     0x0aea6,0x0ab50,0x04b60,0x0aae4,0x0a570,0x05260,0x0f263,0x0d950,0x05b57,0x056a0,
     0x096d0,0x04dd5,0x04ad0,0x0a4d0,0x0d4d4,0x0d250,0x0d558,0x0b540,0x0b6a0,0x195a6,
     0x095b0,0x049b0,0x0a974,0x0a4b0,0x0b27a,0x06a50,0x06d40,0x0af46,0x0ab60,0x09570,
-    0x04af5,0x04970,0x064b0,0x074a3,0x0ea50,0x06b58,0x055c0,0x0ab60,0x096d5,0x092e0,
+    0x04af5,0x04970,0x064b0,0x074a3,0x0ea50,0x06b58,0x05ac0,0x0ab60,0x096d5,0x092e0,
     0x0c960,0x0d954,0x0d4a0,0x0da50,0x07552,0x056a0,0x0abb7,0x025d0,0x092d0,0x0cab5,
     0x0a950,0x0b4a0,0x0baa4,0x0ad50,0x055d9,0x04ba0,0x0a5b0,0x15176,0x052b0,0x0a930,
     0x07954,0x06aa0,0x0ad50,0x05b52,0x04b60,0x0a6e6,0x0a4e0,0x0d260,0x0ea65,0x0d530,
     0x05aa0,0x076a3,0x096d0,0x04afb,0x04ad0,0x0a4d0,0x1d0b6,0x0d250,0x0d520,0x0dd45,
     0x0b5a0,0x056d0,0x055b2,0x049b0,0x0a577,0x0a4b0,0x0aa50,0x1b255,0x06d20,0x0ada0,
     0x14b63,0x09370,0x049f8,0x04970,0x064b0,0x168a6,0x0ea50,0x06b20,0x1a6c4,0x0aae0,
-    0x0a2e0,0x0d2e3,0x0c960,0x0d557,0x0d4a0,0x0da50,0x05d55,0x056a0,0x0a6d0,0x055d4,
+    0x092e0,0x0d2e3,0x0c960,0x0d557,0x0d4a0,0x0da50,0x05d55,0x056a0,0x0a6d0,0x055d4,
     0x052d0,0x0a9b8,0x0a950,0x0b4a0,0x0b6a6,0x0ad50,0x055a0,0x0aba4,0x0a5b0,0x052b0,
-    0x0b273,0x06930,0x07337,0x06aa0,0x0ad50,0x14b55,0x04b60,0x0a570,0x054e4,0x0d160,
-    0x0e968,0x0d520,0x0daa0,0x16aa6,0x056d0,0x04ae0,0x0a9d4,0x0a2d0,0x0d150,0x0f252,
+    0x0b273,0x06930,0x07337,0x06aa0,0x0ad50,0x14b55,0x04b60,0x0a570,0x054e4,0x0d260,
+    0x0e968,0x0d520,0x0daa0,0x16aa6,0x056d0,0x04ae0,0x0a9d4,0x0a4d0,0x0d150,0x0f252,
     0x0d520
   ];
 
@@ -60,19 +66,34 @@
     return sum + leapDays(y);
   }
 
-  function solarToLunar(y, m, d) {
-    let offset = (Date.UTC(y, m - 1, d) - Date.UTC(1900, 0, 31)) / 86400000;
-    let i, temp = 0;
+  /* 逐年累计天数前缀和：公历 → 农历 由「循环 126 年」变成「二分查找」 */
+  const YEAR_ACC = (function () {
+    const arr = new Array(202);
+    let acc = 0;
+    for (let y = 1900; y <= 2100; y++) { arr[y - 1900] = acc; acc += yearDays(y); }
+    arr[201] = acc;
+    return arr;
+  })();
 
-    for (i = 1900; i < 2101 && offset > 0; i++) {
-      temp = yearDays(i);
-      offset -= temp;
+  function lunarYearOfOffset(offset) {
+    let lo = 0, hi = 200;
+    while (lo < hi) {
+      const mid = (lo + hi + 1) >> 1;
+      if (YEAR_ACC[mid] <= offset) lo = mid; else hi = mid - 1;
     }
-    if (offset < 0) { offset += temp; i--; }
+    return 1900 + lo;
+  }
 
-    const lYear = i;
+  function computeSolarToLunar(y, m, d) {
+    let offset = (Date.UTC(y, m - 1, d) - Date.UTC(1900, 0, 31)) / 86400000;
+    if (offset < 0) return { year: 1900, month: 1, day: 1, isLeap: false };
+
+    const lYear = lunarYearOfOffset(offset);
+    offset -= YEAR_ACC[lYear - 1900];
+
     const leap = leapMonth(lYear);
     let isLeap = false;
+    let i, temp = 0;
 
     for (i = 1; i < 13 && offset > 0; i++) {
       if (leap > 0 && i === leap + 1 && !isLeap) {
@@ -94,6 +115,19 @@
     return { year: lYear, month: i, day: offset + 1, isLeap: isLeap };
   }
 
+  const lunarCache = new Map();
+  function solarToLunar(y, m, d) {
+    const key = y * 10000 + m * 100 + d;
+    let v = lunarCache.get(key);
+    if (v === undefined) {
+      v = computeSolarToLunar(y, m, d);
+      // 简易容量控制，避免长时间停留导致的无界增长
+      if (lunarCache.size > 4000) lunarCache.clear();
+      lunarCache.set(key, v);
+    }
+    return v;
+  }
+
   function lunarDayName(d) {
     const pre = ['初','十','廿','三'];
     const num = ['一','二','三','四','五','六','七','八','九','十'];
@@ -104,11 +138,11 @@
   }
 
   function ganzhi(y) {
-    const i = (y - 4) % 60;
+    const i = ((y - 4) % 60 + 60) % 60;
     return {
-      gan:    GAN[((i % 10) + 10) % 10],
-      zhi:    ZHI[((i % 12) + 12) % 12],
-      animal: ANIMAL[((i % 12) + 12) % 12]
+      gan:    GAN[i % 10],
+      zhi:    ZHI[i % 12],
+      animal: ANIMAL[i % 12]
     };
   }
 
@@ -175,7 +209,14 @@
         && a.getDate() === b.getDate();
   }
 
-  function dayInfo(date, today) {
+  const factsCache = new Map();
+
+  /* 与「今天」无关的部分：缓存复用，避免重复换算 */
+  function dayFacts(date) {
+    const key = dayKey(date);
+    let v = factsCache.get(key);
+    if (v) return v;
+
     const y = date.getFullYear(), m = date.getMonth(), d = date.getDate();
     const l = solarToLunar(y, m + 1, d);
     const term = termOfDate(date);
@@ -191,7 +232,7 @@
 
     if (term === '清明') fest = '清明节';
 
-    const plan = HOLIDAY_PLAN[dayKey(date)] || null;
+    const plan = HOLIDAY_PLAN[key] || null;
     if (plan && plan.name) fest = plan.name;
 
     let label;
@@ -200,14 +241,22 @@
     else if (l.day === 1) label = (l.isLeap ? '闰' : '') + LMON[l.month - 1] + '月';
     else label = lunarDayName(l.day);
 
+    v = { lunar: l, term: term, fest: fest, plan: plan, label: label };
+    if (factsCache.size > 4000) factsCache.clear();
+    factsCache.set(key, v);
+    return v;
+  }
+
+  function dayInfo(date, today) {
+    const f = dayFacts(date);
     return {
       date: date,
-      lunar: l,
-      term: term,
-      fest: fest,
-      plan: plan,
+      lunar: f.lunar,
+      term: f.term,
+      fest: f.fest,
+      plan: f.plan,
       isToday: today ? sameDay(date, today) : false,
-      label: label
+      label: f.label
     };
   }
 
@@ -227,6 +276,21 @@
       if (info.fest) return { name: info.fest, days: k, date: d };
     }
     return null;
+  }
+
+  function dayOfYear(date) {
+    const start = new Date(date.getFullYear(), 0, 0);
+    return Math.floor((date - start) / 86400000);
+  }
+  function daysInYear(y) {
+    return ((y % 4 === 0 && y % 100 !== 0) || y % 400 === 0) ? 366 : 365;
+  }
+  function isoWeek(date) {
+    const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+    const dayNum = d.getUTCDay() || 7;
+    d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+    return Math.ceil(((d - yearStart) / 86400000 + 1) / 7);
   }
 
   /* =========================================================
@@ -297,73 +361,328 @@
      五、日历页面（#calScroller 存在时启用）
      ========================================================= */
   function initCalendarPage() {
-    const scroller  = document.getElementById('calScroller');
-    const levelDay  = document.getElementById('calLevelDay');
-    const levelMon  = document.getElementById('calLevelMonth');
-    const levelYear = document.getElementById('calLevelYear');
+    const scroller   = document.getElementById('calScroller');
+    const levelDay   = document.getElementById('calLevelDay');
+    const levelMon   = document.getElementById('calLevelMonth');
+    const levelYear  = document.getElementById('calLevelYear');
     const monthsWrap = document.getElementById('calMonths');
     const yearsWrap  = document.getElementById('calYears');
     const titleBtn   = document.getElementById('calTitle');
     const todayBtn   = document.getElementById('calToday');
+    const segWrap    = document.getElementById('calSeg');
+    const segThumb   = segWrap ? segWrap.querySelector('.seg-thumb') : null;
+    const segItems   = segWrap ? Array.prototype.slice.call(segWrap.querySelectorAll('.seg-item')) : [];
+    const detail     = document.getElementById('calDetail');
 
     const today = new Date();
+    today.setHours(0, 0, 0, 0);
     const baseYear  = today.getFullYear();
     const baseMonth = today.getMonth();
 
-    const BACK = 36, FWD = 36;
+    const BACK = 60, FWD = 60;          // 前后各 5 年
+    const YEARS = { from: 1901, to: 2100 };
+    const RENDER_RADIUS = 2;            // 只渲染可视面板 ±2
+
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
     let level = 'day';
-    let activeYear  = baseYear;
-    let activeMonth = baseMonth;
+    let monthKeys = [];
+    let slots = [];
+    let htmlCache = new Map();
     let activeIndex = BACK;
-    let snapTimer = null;
+    let activeYear = baseYear;
+    let activeMonth = baseMonth;
+    let selected = null;
     let drag = null;
     let dragged = false;
+    let settleTimer = null;
+    let tweenId = 0;
 
-    const monthKeys = [];
-    for (let i = -BACK; i <= FWD; i++) {
-      const d = new Date(baseYear, baseMonth + i, 1);
-      monthKeys.push({ year: d.getFullYear(), month: d.getMonth() });
+    /* ---------- 月份窗口 ---------- */
+    function buildMonthKeys(cy, cm) {
+      monthKeys = [];
+      for (let i = -BACK; i <= FWD; i++) {
+        const d = new Date(cy, cm + i, 1);
+        monthKeys.push({ y: d.getFullYear(), m: d.getMonth() });
+      }
     }
 
-    /* ---- 面板构造 ---- */
-    function buildPanel(y, m) {
-      const padCount = new Date(y, m, 1).getDay();
+    function indexOfMonth(y, m) {
+      for (let i = 0; i < monthKeys.length; i++) {
+        if (monthKeys[i].y === y && monthKeys[i].m === m) return i;
+      }
+      return -1;
+    }
+
+    /* ---------- 面板构造（带缓存） ---------- */
+    function panelHTML(y, m) {
+      const key = y + '-' + m;
+      let html = htmlCache.get(key);
+      if (html) return html;
+
+      const startPad = new Date(y, m, 1).getDay();
       const dim = new Date(y, m + 1, 0).getDate();
 
-      let html = '';
-      for (let i = 0; i < padCount; i++) html += '<span class="cal-cell is-out"></span>';
+      const out = [];
+      for (let i = 0; i < startPad; i++) out.push('<span class="cal-cell is-out"></span>');
 
       for (let d = 1; d <= dim; d++) {
         const date = new Date(y, m, d);
         const info = dayInfo(date, today);
+        const wd = date.getDay();
         const cls = ['cal-cell'];
         if (info.isToday) cls.push('is-today');
-        if (date.getDay() === 0 || date.getDay() === 6) cls.push('is-weekend');
+        if (wd === 0 || wd === 6) cls.push('is-weekend');
         if (info.fest) cls.push('is-fest');
         else if (info.term) cls.push('is-term');
         if (info.plan && info.plan.off === false) cls.push('is-work');
 
-        html += '<div class="' + cls.join(' ') + '" title="' + info.label + '">'
-              + '<b>' + d + '</b><i>' + info.label + '</i></div>';
+        out.push(
+          '<div class="' + cls.join(' ') + '" data-date="' + dayKey(date) + '"' +
+          ' role="gridcell" tabindex="-1" aria-label="' + (m + 1) + ' 月 ' + d + ' 日 ' + info.label + '">' +
+          '<b>' + d + '</b><i>' + info.label + '</i></div>'
+        );
       }
 
-      const total = padCount + dim;
-      for (let i = total; i < 42; i++) html += '<span class="cal-cell is-out"></span>';
+      const total = startPad + dim;
+      for (let i = total; i < 42; i++) out.push('<span class="cal-cell is-out"></span>');
 
-      const panel = document.createElement('div');
-      panel.className = 'cal-panel';
-      panel.dataset.year = y;
-      panel.dataset.month = m;
-      panel.innerHTML = html;
-      return panel;
+      html = out.join('');
+      if (htmlCache.size > 400) htmlCache.clear();
+      htmlCache.set(key, html);
+      return html;
+    }
+
+    function buildSlots() {
+      scroller.textContent = '';
+      const frag = document.createDocumentFragment();
+      slots = [];
+      for (let i = 0; i < monthKeys.length; i++) {
+        const d = document.createElement('div');
+        d.className = 'cal-panel';
+        d.dataset.i = String(i);
+        frag.appendChild(d);
+        slots.push(d);
+      }
+      scroller.appendChild(frag);
+      windowFrom = windowTo = -1;
+    }
+
+    /* 目标月份不在当前 ±5 年窗口里时，以它为中心重建窗口 */
+    function recenterTo(y, m) {
+      buildMonthKeys(y, m);
+      buildSlots();
+      htmlCache = new Map();
+      activeIndex = BACK;
+      activeYear = y;
+      activeMonth = m;
+      const h = panelHeight();
+      if (h) scroller.scrollTop = BACK * h;
+      renderWindow(BACK);
+    }
+
+    let windowFrom = -1, windowTo = -1;
+
+    /* 只填充可视窗口，其余面板保持空白 —— 73 个月也只需要 ~210 个节点 */
+    function renderWindow(idx) {
+      const from = Math.max(0, idx - RENDER_RADIUS);
+      const to = Math.min(slots.length - 1, idx + RENDER_RADIUS);
+      if (from === windowFrom && to === windowTo) return;
+
+      for (let i = windowFrom; i <= windowTo; i++) {
+        if (i < 0 || i >= slots.length) continue;
+        if (i >= from && i <= to) continue;
+        const s = slots[i];
+        if (s.dataset.filled) { s.innerHTML = ''; s.dataset.filled = ''; }
+      }
+
+      for (let i = from; i <= to; i++) {
+        const s = slots[i];
+        if (s.dataset.filled) continue;
+        s.innerHTML = panelHTML(monthKeys[i].y, monthKeys[i].m);
+        s.dataset.filled = '1';
+      }
+
+      windowFrom = from;
+      windowTo = to;
+      paintSelection(false);
+    }
+
+    /* 选中态不写进面板缓存里，避免复用旧 HTML 时串味 */
+    function paintSelection(pop) {
+      const prev = scroller.querySelector('.cal-cell.is-selected');
+      if (prev) prev.classList.remove('is-selected');
+      if (!selected) return;
+      const cell = scroller.querySelector('.cal-cell[data-date="' + dayKey(selected) + '"]');
+      if (!cell) return;
+      cell.classList.add('is-selected');
+      if (pop) {
+        cell.classList.remove('pop');
+        void cell.offsetWidth;
+        cell.classList.add('pop');
+      }
+    }
+
+    function panelHeight() { return scroller.clientHeight || 0; }
+
+    /* ---------- 标题 / 分段控件 ---------- */
+    function setTitle(t) { if (titleBtn) titleBtn.textContent = t; }
+
+    function syncSeg() {
+      segItems.forEach(function (b) {
+        b.classList.toggle('is-on', b.dataset.level === level);
+        b.setAttribute('aria-selected', b.dataset.level === level ? 'true' : 'false');
+      });
+      if (segThumb && segWrap) {
+        const on = segWrap.querySelector('.seg-item.is-on');
+        if (on) {
+          segThumb.style.width = on.offsetWidth + 'px';
+          segThumb.style.transform = 'translateX(' + on.offsetLeft + 'px)';
+          segThumb.classList.add('is-ready');
+        }
+      }
+    }
+
+    function syncTitle() {
+      if (level === 'day') setTitle(activeYear + ' 年 ' + (activeMonth + 1) + ' 月');
+      else if (level === 'month') setTitle(activeYear + ' 年');
+      else setTitle('选择年份');
+    }
+
+    /* ---------- 滚动定位 ---------- */
+    function cancelTween() { tweenId++; }
+
+    function tweenTo(target, duration) {
+      cancelTween();
+      const id = tweenId;
+      const start = scroller.scrollTop;
+      const dist = target - start;
+      if (Math.abs(dist) < 1) { scroller.scrollTop = target; return; }
+      const t0 = performance.now();
+      const dur = duration || Math.min(560, Math.max(260, Math.abs(dist) * 0.55));
+
+      (function step(now) {
+        if (id !== tweenId) return;
+        const p = Math.min(1, (now - t0) / dur);
+        const e = 1 - Math.pow(1 - p, 3);
+        scroller.scrollTop = start + dist * e;
+        if (p < 1) requestAnimationFrame(step);
+      })(t0);
+    }
+
+    function withSnapOff(fn) {
+      scroller.style.scrollSnapType = 'none';
+      clearTimeout(settleTimer);
+      fn();
+    }
+    function restoreSnapSoon() {
+      clearTimeout(settleTimer);
+      settleTimer = setTimeout(function () { scroller.style.scrollSnapType = ''; }, 90);
+    }
+
+    function goToIndex(i, smooth) {
+      i = Math.max(0, Math.min(slots.length - 1, i));
+      activeIndex = i;
+      renderWindow(i);
+      syncFromIndex();
+
+      const h = panelHeight();
+      if (!h) return;                       // 视图不可见时，切回日视图会重新定位
+      const top = i * h;
+
+      if (smooth && !reduceMotion.matches) {
+        withSnapOff(function () { tweenTo(top); });
+        restoreSnapSoon();
+      } else {
+        cancelTween();
+        scroller.scrollTop = top;
+      }
+    }
+
+    function syncFromIndex() {
+      const k = monthKeys[activeIndex];
+      if (!k) return;
+      activeYear = k.y;
+      activeMonth = k.m;
+      if (level === 'day') syncTitle();
+    }
+
+    /* ---------- 三级视图 ---------- */
+    function setLevel(next, opts) {
+      opts = opts || {};
+      if (level === next && !opts.force) return;
+      level = next;
+
+      levelDay.hidden  = next !== 'day';
+      levelMon.hidden  = next !== 'month';
+      levelYear.hidden = next !== 'year';
+
+      if (detail && next !== 'day') hideDetail();
+
+      if (next === 'day') {
+        // 无论从哪条路径回到日视图，索引都必须跟着 activeYear / activeMonth 走
+        const i = indexOfMonth(activeYear, activeMonth);
+        if (i < 0) recenterTo(activeYear, activeMonth);
+        else {
+          activeIndex = i;
+          renderWindow(i);
+        }
+        syncTitle();
+        requestAnimationFrame(function () {
+          layoutDay();
+          revealLevel(levelDay);
+        });
+      } else if (next === 'month') {
+        syncTitle();
+        buildMonthLevel();
+        revealLevel(levelMon);
+      } else {
+        syncTitle();
+        buildYearLevel();
+        revealLevel(levelYear);
+      }
+      syncSeg();
+    }
+
+    function revealLevel(el) {
+      if (!el || reduceMotion.matches) return;
+      el.classList.remove('anim-in');
+      void el.offsetWidth;
+      el.classList.add('anim-in');
+    }
+
+    /* 视图切换后重新计算滚动位置（隐藏时 clientHeight 为 0） */
+    function layoutDay() {
+      const h = panelHeight();
+      if (!h || level !== 'day') return;
+      cancelTween();
+      scroller.scrollTop = activeIndex * h;
+      renderWindow(activeIndex);
+    }
+
+    function buildMonthLevel() {
+      let html = '';
+      for (let m = 0; m < 12; m++) {
+        html += '<button class="month-cell' + (m === activeMonth ? ' is-on' : '') +
+                '" type="button" data-month="' + m + '" style="--i:' + m + '">' +
+                '<span class="month-cell-t">' + (m + 1) + ' 月</span>' +
+                miniMonth(activeYear, m) +
+                '</button>';
+      }
+      monthsWrap.innerHTML = html;
+      requestAnimationFrame(function () {
+        const on = monthsWrap.querySelector('.month-cell.is-on');
+        if (on) {
+          monthsWrap.scrollTop = Math.max(0, on.offsetTop - monthsWrap.clientHeight / 2 + on.offsetHeight / 2);
+        }
+      });
     }
 
     function miniMonth(y, m) {
-      const padCount = new Date(y, m, 1).getDay();
+      const startPad = new Date(y, m, 1).getDay();
       const dim = new Date(y, m + 1, 0).getDate();
       let s = '<span class="mini-grid">';
-      for (let i = 0; i < padCount; i++) s += '<span class="mini-d is-out"></span>';
+      for (let i = 0; i < startPad; i++) s += '<span class="mini-d is-out"></span>';
       for (let d = 1; d <= dim; d++) {
         const date = new Date(y, m, d);
         const info = dayInfo(date, today);
@@ -371,100 +690,127 @@
         if (info.fest) cls.push('is-fest');
         else if (info.term) cls.push('is-term');
         if (info.isToday) cls.push('is-today');
+        if (selected && sameDay(date, selected)) cls.push('is-selected');
         s += '<span class="' + cls.join(' ') + '">' + d + '</span>';
       }
       return s + '</span>';
     }
 
-    (function buildDayLevel() {
-      const frag = document.createDocumentFragment();
-      monthKeys.forEach(function (k) { frag.appendChild(buildPanel(k.year, k.month)); });
-      scroller.appendChild(frag);
-    })();
-
-    /* ---- 滚动与对齐 ---- */
-    function panelHeight() { return scroller.clientHeight || 1; }
-    function panelAt(i) { return scroller.children[i]; }
-    function prefersReduced() {
-      return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    }
-
-    function scrollToIndex(i, smooth) {
-      const max = scroller.children.length - 1;
-      i = Math.max(0, Math.min(max, i));
-      activeIndex = i;
-      const top = i * panelHeight();
-      if (smooth && !prefersReduced()) scroller.scrollTo({ top: top, behavior: 'smooth' });
-      else scroller.scrollTop = top;
-      syncFromIndex();
-    }
-
-    function syncFromIndex() {
-      const p = panelAt(activeIndex);
-      if (!p) return;
-      activeYear  = Number(p.dataset.year);
-      activeMonth = Number(p.dataset.month);
-      if (level === 'day') setTitle(activeYear + ' 年 ' + (activeMonth + 1) + ' 月');
-    }
-
-    function indexOfMonth(y, m) {
-      for (let i = 0; i < monthKeys.length; i++) {
-        if (monthKeys[i].year === y && monthKeys[i].month === m) return i;
-      }
-      return -1;
-    }
-
-    function setTitle(t) { titleBtn.textContent = t; }
-
-    /* ---- 三级缩放 ---- */
-    function setLevel(next) {
-      level = next;
-      levelDay.hidden  = next !== 'day';
-      levelMon.hidden  = next !== 'month';
-      levelYear.hidden = next !== 'year';
-
-      if (next === 'day') {
-        setTitle(activeYear + ' 年 ' + (activeMonth + 1) + ' 月');
-        requestAnimationFrame(function () {
-          const i = indexOfMonth(activeYear, activeMonth);
-          if (i >= 0) scrollToIndex(i, false);
-        });
-      } else if (next === 'month') {
-        setTitle(activeYear + ' 年');
-        buildMonthLevel();
-        const on = monthsWrap.querySelector('.month-cell.is-on');
-        if (on) requestAnimationFrame(function () { on.scrollIntoView({ block: 'nearest' }); });
-      } else {
-        setTitle('选择年份');
-        buildYearLevel();
-        const on = yearsWrap.querySelector('.year-cell.is-on');
-        if (on) requestAnimationFrame(function () { on.scrollIntoView({ block: 'center' }); });
-      }
-    }
-
-    function buildMonthLevel() {
-      let html = '';
-      for (let m = 0; m < 12; m++) {
-        html += '<button class="month-cell' + (m === activeMonth ? ' is-on' : '') + '" data-month="' + m + '">'
-              + '<span class="month-cell-t">' + (m + 1) + ' 月</span>'
-              + miniMonth(activeYear, m)
-              + '</button>';
-      }
-      monthsWrap.innerHTML = html;
-    }
-
     function buildYearLevel() {
       let html = '';
-      for (let y = 1901; y <= 2100; y++) {
-        html += '<button class="year-cell' + (y === activeYear ? ' is-on' : '') + '" data-year="' + y + '">' + y + '</button>';
+      for (let y = YEARS.from; y <= YEARS.to; y++) {
+        html += '<button class="year-cell' + (y === activeYear ? ' is-on' : '') +
+                '" type="button" data-year="' + y + '">' + y + '</button>';
       }
       yearsWrap.innerHTML = html;
+      // 手动定位，避免 scrollIntoView 把整页也带走
+      requestAnimationFrame(function () {
+        const on = yearsWrap.querySelector('.year-cell.is-on');
+        if (on) yearsWrap.scrollTop = Math.max(0, on.offsetTop - yearsWrap.clientHeight / 2 + on.offsetHeight / 2);
+      });
     }
 
-    /* ---- 交互 ---- */
-    titleBtn.addEventListener('click', function () {
-      if (level === 'day') setLevel('month');
-      else if (level === 'month') setLevel('year');
+    /* ---------- 选中日期 ---------- */
+    function selectDate(date, opts) {
+      opts = opts || {};
+      selected = date;
+
+      // 跨月：先切到对应月份
+      let target = indexOfMonth(date.getFullYear(), date.getMonth());
+      if (target < 0) {
+        recenterTo(date.getFullYear(), date.getMonth());
+        target = BACK;
+      }
+
+      if (target !== activeIndex) {
+        activeIndex = target;
+        activeYear = date.getFullYear();
+        activeMonth = date.getMonth();
+        const h = panelHeight();
+        if (h) {
+          cancelTween();
+          scroller.scrollTop = target * h;
+          restoreSnapSoon();
+        }
+      }
+
+      renderWindow(activeIndex);
+      syncTitle();
+      syncSeg();
+      paintSelection(!opts.silent);
+      renderDetail(date);
+    }
+
+    function factRow(label, value, cls) {
+      return '<div class="cd-fact' + (cls ? ' ' + cls : '') + '">' +
+             '<b>' + value + '</b><span>' + label + '</span></div>';
+    }
+
+    function renderDetail(date) {
+      if (!detail) return;
+      const y = date.getFullYear(), m = date.getMonth(), d = date.getDate();
+      const f = dayFacts(date);
+      const gz = ganzhi(y);
+      const diff = Math.round((date - today) / 86400000);
+
+      const el = {
+        day:   document.getElementById('cdDay'),
+        full:  document.getElementById('cdFull'),
+        lunar: document.getElementById('cdLunar'),
+        chips: document.getElementById('cdChips'),
+        facts: document.getElementById('cdFacts')
+      };
+      if (!el.full) return;
+
+      if (el.day) el.day.textContent = String(d);
+      el.full.textContent = y + ' 年 ' + (m + 1) + ' 月 ' + d + ' 日 · 星期' + WEEK[date.getDay()];
+      if (el.lunar) {
+        el.lunar.textContent =
+          gz.gan + gz.zhi + gz.animal + '年 ' +
+          (f.lunar.isLeap ? '闰' : '') + LMON[f.lunar.month - 1] + '月' + lunarDayName(f.lunar.day);
+      }
+
+      if (el.chips) {
+        const chips = [];
+        if (diff === 0) chips.push('<span class="tag">今天</span>');
+        else if (diff > 0) chips.push('<span class="tag tag--gray">' + diff + ' 天后</span>');
+        else chips.push('<span class="tag tag--gray">' + (-diff) + ' 天前</span>');
+        if (f.fest) chips.push('<span class="tag tag--fest">' + f.fest + '</span>');
+        if (f.term) chips.push('<span class="tag tag--2">' + f.term + '</span>');
+        if (f.plan && f.plan.off === false) chips.push('<span class="tag tag--3">补班</span>');
+        el.chips.innerHTML = chips.join('');
+      }
+
+      if (el.facts) {
+        el.facts.innerHTML =
+          factRow('农历', (f.lunar.isLeap ? '闰' : '') + LMON[f.lunar.month - 1] + '月' + lunarDayName(f.lunar.day)) +
+          factRow('干支', gz.gan + gz.zhi + ' · ' + gz.animal) +
+          factRow('今年第', dayOfYear(date) + ' / ' + daysInYear(y) + ' 天') +
+          factRow('第几周', '第 ' + isoWeek(date) + ' 周');
+      }
+
+      detail.classList.add('is-open');
+      detail.setAttribute('aria-hidden', 'false');
+    }
+
+    function hideDetail() {
+      if (!detail) return;
+      detail.classList.remove('is-open');
+      detail.setAttribute('aria-hidden', 'true');
+      selected = null;
+      paintSelection(false);
+    }
+
+    /* ---------- 事件 ---------- */
+    if (titleBtn) {
+      titleBtn.addEventListener('click', function () {
+        if (level === 'day') setLevel('month');
+        else if (level === 'month') setLevel('year');
+      });
+    }
+
+    segItems.forEach(function (btn) {
+      btn.addEventListener('click', function () { setLevel(btn.dataset.level); });
     });
 
     monthsWrap.addEventListener('click', function (e) {
@@ -477,21 +823,67 @@
     yearsWrap.addEventListener('click', function (e) {
       const btn = e.target.closest('.year-cell');
       if (!btn) return;
-      activeYear = Number(btn.dataset.year);
+      const y = Number(btn.dataset.year);
+      if (indexOfMonth(y, activeMonth) < 0) recenterTo(y, activeMonth);
+      else activeYear = y;
       setLevel('month');
     });
 
-    todayBtn.addEventListener('click', function () {
-      activeYear = baseYear;
-      activeMonth = baseMonth;
-      setLevel('day');
-      requestAnimationFrame(function () { scrollToIndex(BACK, true); });
+    if (todayBtn) {
+      todayBtn.addEventListener('click', function () {
+        activeYear = baseYear;
+        activeMonth = baseMonth;
+        setLevel('day', { force: true });
+        requestAnimationFrame(function () {
+          goToIndex(indexOfMonth(baseYear, baseMonth) >= 0 ? indexOfMonth(baseYear, baseMonth) : BACK, true);
+          selectDate(today);
+        });
+      });
+    }
+
+    if (detail) {
+      const closeBtn = document.getElementById('cdClose');
+      if (closeBtn) closeBtn.addEventListener('click', hideDetail);
+      const prevBtn = document.getElementById('cdPrev');
+      const nextBtn = document.getElementById('cdNext');
+      const curBtn  = document.getElementById('cdToday');
+      if (prevBtn) prevBtn.addEventListener('click', function () {
+        if (selected) selectDate(new Date(selected.getFullYear(), selected.getMonth(), selected.getDate() - 1));
+      });
+      if (nextBtn) nextBtn.addEventListener('click', function () {
+        if (selected) selectDate(new Date(selected.getFullYear(), selected.getMonth(), selected.getDate() + 1));
+      });
+      if (curBtn) curBtn.addEventListener('click', function () {
+        setLevel('day', { force: true });
+        requestAnimationFrame(function () { goToIndex(BACK, true); });
+        selectDate(today);
+      });
+    }
+
+    /* 点击日期 */
+    scroller.addEventListener('click', function (e) {
+      if (dragged) return;
+      const cell = e.target.closest('.cal-cell');
+      if (!cell || cell.classList.contains('is-out') || !cell.dataset.date) return;
+      const parts = cell.dataset.date.split('-').map(Number);
+      const date = new Date(parts[0], parts[1] - 1, parts[2]);
+      // 再点一次同一天 = 收起详情
+      if (selected && sameDay(date, selected) && detail && detail.classList.contains('is-open')) {
+        hideDetail();
+        return;
+      }
+      selectDate(date);
     });
 
-    /* ---- 鼠标拖动翻月 ---- */
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && detail && detail.classList.contains('is-open')) hideDetail();
+    });
+
+    /* 鼠标拖动翻月（带惯性） */
     scroller.addEventListener('pointerdown', function (e) {
       if (e.pointerType !== 'mouse' || e.button !== 0) return;
-      drag = { y: e.clientY, top: scroller.scrollTop, moved: false };
+      cancelTween();
+      drag = { y: e.clientY, top: scroller.scrollTop, moved: false, last: e.clientY, time: performance.now(), v: 0 };
       dragged = false;
       scroller.classList.add('is-dragging');
       scroller.style.scrollSnapType = 'none';
@@ -501,48 +893,97 @@
     scroller.addEventListener('pointermove', function (e) {
       if (!drag) return;
       const dy = e.clientY - drag.y;
-      if (Math.abs(dy) > 3) { drag.moved = true; dragged = true; }
-      if (drag.moved) scroller.scrollTop = drag.top - dy;
+      if (Math.abs(dy) > 4) { drag.moved = true; dragged = true; }
+      if (!drag.moved) return;
+
+      const now = performance.now();
+      const dt = Math.max(1, now - drag.time);
+      drag.v = (e.clientY - drag.last) / dt;
+      drag.last = e.clientY;
+      drag.time = now;
+      scroller.scrollTop = drag.top - dy;
     });
 
     function endDrag() {
       if (!drag) return;
-      const moved = drag.moved;
+      const d = drag;
       drag = null;
       scroller.classList.remove('is-dragging');
-      scroller.style.scrollSnapType = '';
-      if (moved) {
-        scrollToIndex(Math.round(scroller.scrollTop / panelHeight()), true);
-        setTimeout(function () { dragged = false; }, 400);
-      }
+
+      if (!d.moved) { scroller.style.scrollSnapType = ''; return; }
+
+      const h = panelHeight() || 1;
+      const projection = d.v * 160;
+      const raw = (scroller.scrollTop - projection) / h;
+      let idx = Math.round(raw);
+      idx = Math.max(0, Math.min(slots.length - 1, idx));
+
+      const top = idx * h;
+      const dist = Math.abs(top - scroller.scrollTop);
+      tweenTo(top, Math.min(620, Math.max(220, dist * 0.6)));
+      activeIndex = idx;
+      renderWindow(idx);
+      const k = monthKeys[idx];
+      if (k) { activeYear = k.y; activeMonth = k.m; syncTitle(); }
+      restoreSnapSoon();
+      setTimeout(function () { dragged = false; }, 380);
     }
 
     scroller.addEventListener('pointerup', endDrag);
     scroller.addEventListener('pointercancel', endDrag);
     scroller.addEventListener('pointerleave', function () { if (drag) endDrag(); });
 
-    /* ---- 滚动同步标题 ---- */
-    scroller.addEventListener('scroll', function () {
-      if (drag) return;
-      if (snapTimer) clearTimeout(snapTimer);
-      snapTimer = setTimeout(function () {
-        const idx = Math.round(scroller.scrollTop / panelHeight());
-        if (idx !== activeIndex) {
-          activeIndex = Math.max(0, Math.min(scroller.children.length - 1, idx));
-          syncFromIndex();
-        }
-      }, 90);
-    }, { passive: true });
+    /* 触摸 / 滚轮：让原生滚动 + snap 处理，只在结束时同步一次 */
+    scroller.addEventListener('touchstart', cancelTween, { passive: true });
+    scroller.addEventListener('wheel', function () { cancelTween(); restoreSnapSoon(); }, { passive: true });
 
-    window.addEventListener('resize', function () {
-      if (level !== 'day') return;
-      scroller.scrollTop = activeIndex * panelHeight();
+    const onScroll = window.YY && window.YY.raf ? window.YY.raf(syncScroll) : syncScroll;
+    function syncScroll() {
+      if (drag || level !== 'day') return;
+      const h = panelHeight();
+      if (!h) return;
+      const idx = Math.max(0, Math.min(slots.length - 1, Math.round(scroller.scrollTop / h)));
+      if (idx !== activeIndex) {
+        activeIndex = idx;
+        renderWindow(idx);
+        syncFromIndex();
+      } else {
+        renderWindow(idx);
+      }
+    }
+    scroller.addEventListener('scroll', onScroll, { passive: true });
+
+    /* 键盘 */
+    scroller.setAttribute('tabindex', '0');
+    scroller.addEventListener('keydown', function (e) {
+      const map = { ArrowUp: -1, ArrowLeft: -1, ArrowDown: 1, ArrowRight: 1, PageUp: -1, PageDown: 1 };
+      if (e.key in map) {
+        e.preventDefault();
+        goToIndex(activeIndex + map[e.key], true);
+      } else if (e.key === 'Home') {
+        e.preventDefault();
+        goToIndex(0, true);
+      } else if (e.key === 'End') {
+        e.preventDefault();
+        goToIndex(slots.length - 1, true);
+      }
     });
 
-    /* ---- 首次对齐 ---- */
+    const onResize = (window.YY && window.YY.raf ? window.YY.raf(layoutDay) : layoutDay);
+    window.addEventListener('resize', onResize);
+    window.addEventListener('orientationchange', function () { setTimeout(layoutDay, 240); });
+
+    /* ---------- 初始化 ---------- */
+    buildMonthKeys(baseYear, baseMonth);
+    buildSlots();
     requestAnimationFrame(function () {
-      scrollToIndex(BACK, false);
-      setTitle(activeYear + ' 年 ' + (activeMonth + 1) + ' 月');
+      layoutDay();
+      syncTitle();
+      syncSeg();
+      // 首次进入：今天带一圈选中态，但不弹详情
+      selected = today;
+      paintSelection(false);
+      if (!reduceMotion.matches) levelDay.classList.add('anim-in');
     });
   }
 
@@ -552,11 +993,13 @@
   initHome();
   if (document.getElementById('calScroller')) initCalendarPage();
 
-  // 供外部使用（暂未用到，留给以后）
+  // 供外部使用
   window.YYCal = {
     solarToLunar: solarToLunar,
     termOfDate: termOfDate,
-    dayInfo: dayInfo
+    dayInfo: dayInfo,
+    ganzhi: ganzhi,
+    lunarDayName: lunarDayName
   };
 
 })();

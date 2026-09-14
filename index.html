@@ -2,12 +2,15 @@
 <html lang="zh-CN" data-theme="light">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#F2F2F7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
 <title>言一</title>
 <meta name="description" content="言一：文章、随笔与相片馆。">
 
 <script>
 (function(){
+  document.documentElement.classList.add('js');
   try{
     var t = localStorage.getItem('theme');
     if(!t && window.matchMedia('(prefers-color-scheme: dark)').matches) t = 'dark';
@@ -23,184 +26,213 @@
 
 <style>
 /* =========================================================
-   首页专属
+   首页
    ========================================================= */
 .hero{
   max-width:var(--maxw);
   margin:0 auto;
-  padding:38px 24px 30px;
+  padding:40px var(--gutter) 30px;
 }
-.profile{display:flex;gap:26px;align-items:center}
-
+.profile{
+  display:flex;
+  gap:26px;
+  align-items:center;
+  padding:24px 26px;
+  border-radius:var(--r-xl);
+  background:var(--glass);
+  -webkit-backdrop-filter:var(--blur-strong);
+  backdrop-filter:var(--blur-strong);
+  border:1px solid var(--line);
+  box-shadow:var(--sh-2), inset 0 1px 0 var(--sheen);
+}
 .avatar{
-  width:92px;height:92px;border-radius:50%;object-fit:cover;flex-shrink:0;
-  background:var(--surface-2);
-  box-shadow:0 0 0 4px var(--surface),0 0 0 5px var(--border),0 14px 28px -14px rgba(17,23,33,.35);
+  width:88px;height:88px;
+  border-radius:50%;
+  object-fit:cover;
+  flex-shrink:0;
+  background:var(--fill);
+  box-shadow:0 0 0 3px var(--glass-strong), 0 0 0 4px var(--line), 0 16px 30px -16px rgba(15,23,42,.45);
+  transition:transform .5s var(--spring);
 }
+@media (hover:hover){.profile:hover .avatar{transform:scale(1.035) rotate(-1.5deg)}}
 
 .profile-info h1{
   font-family:var(--serif);
-  font-size:clamp(26px,5vw,36px);
+  font-size:clamp(28px,5.4vw,38px);
   font-weight:700;
-  letter-spacing:-.01em;
-  margin:0 0 6px;
-  line-height:1.25;
+  letter-spacing:-.02em;
+  margin:0 0 7px;
+  line-height:1.2;
 }
 .bio{
   margin:0 0 14px;
-  color:var(--text-muted);
+  color:var(--text-2);
   font-size:15px;
   max-width:46ch;
-  line-height:1.75;
+  line-height:1.7;
 }
-.socials{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.socials{display:flex;gap:7px;flex-wrap:wrap;align-items:center}
 .socials a,
 .socials .social-text{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
   font-size:13px;
-  color:var(--text-muted);
+  font-weight:500;
+  color:var(--text-2);
   text-decoration:none;
-  padding:5px 12px;
-  border-radius:999px;
-  border:1px solid var(--border);
-  background:var(--surface);
-  transition:color .2s,border-color .2s,transform .2s;
+  padding:6px 13px;
+  border-radius:var(--r-full);
+  border:1px solid var(--line);
+  background:var(--glass-thin);
+  transition:color var(--t-fast),border-color var(--t-fast),transform var(--t-fast) var(--spring),background var(--t-fast);
 }
-.socials a:hover{color:var(--accent);border-color:var(--accent);transform:translateY(-1px)}
-.socials .social-text{
-  cursor:default;
-  -webkit-user-select:text;
-  user-select:text;
-  font-variant-numeric:tabular-nums;
+@media (hover:hover){
+  .socials a:hover{color:var(--accent);border-color:color-mix(in srgb,var(--accent) 40%,transparent);transform:translateY(-1.5px)}
 }
+.socials .social-text{cursor:pointer;font-variant-numeric:tabular-nums}
+@media (hover:hover){.socials .social-text:hover{color:var(--accent);border-color:color-mix(in srgb,var(--accent) 40%,transparent)}}
 
-/* ---------- 日期 / 天气 两块 ---------- */
+/* ---------- 今天 / 天气 ---------- */
 .modules{
   max-width:var(--maxw);
   margin:0 auto;
-  padding:0 24px 26px;
+  padding:0 var(--gutter) 26px;
   display:grid;
-  grid-template-columns:minmax(0,1.12fr) minmax(0,1fr);
-  gap:20px;
+  grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);
+  gap:18px;
   align-items:stretch;
 }
-
 .mod{
   display:flex;
   flex-direction:column;
-  padding:20px 22px 16px;
+  padding:22px 24px 16px;
+  border-radius:var(--r-xl);
   cursor:pointer;
 }
-
-.mod-head{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  margin-bottom:14px;
-}
+.mod-head{display:flex;align-items:center;gap:10px;margin-bottom:14px}
 .mod-label{
   font-size:11.5px;
-  letter-spacing:.16em;
-  color:var(--text-muted);
+  font-weight:600;
+  letter-spacing:.14em;
   text-transform:uppercase;
+  color:var(--text-3);
 }
-
 .mod-clock{
   font-family:var(--serif);
-  font-size:clamp(30px,6vw,42px);
+  font-size:clamp(32px,6.4vw,45px);
   font-weight:600;
-  line-height:1.1;
+  line-height:1.05;
+  letter-spacing:-.02em;
   font-variant-numeric:tabular-nums;
-  margin:0 0 8px;
+  margin:0 0 9px;
 }
-.mod-date{margin:0 0 5px;font-size:15px;color:var(--text)}
-.mod-lunar{margin:0 0 14px;font-size:13.5px;color:var(--text-muted)}
-.mod-tags{
-  display:flex;gap:6px;flex-wrap:wrap;
-  margin-bottom:14px;min-height:23px;
-}
+.mod-date{margin:0 0 5px;font-size:15px;font-weight:500}
+.mod-lunar{margin:0 0 15px;font-size:13.5px;color:var(--text-2)}
+.mod-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:15px;min-height:24px}
 .mod-foot{
   display:flex;align-items:center;justify-content:space-between;gap:10px;
   margin-top:auto;
-  padding-top:12px;
-  border-top:1px solid var(--border);
-  font-size:12.5px;color:var(--text-muted);
+  padding-top:13px;
+  border-top:1px solid var(--line);
+  font-size:12.5px;color:var(--text-3);
 }
 
-.w-now{display:flex;align-items:center;gap:14px;margin-bottom:10px}
-.w-icon{font-size:38px;line-height:1;flex-shrink:0}
+.w-now{display:flex;align-items:center;gap:15px;margin-bottom:11px}
+.w-icon{
+  font-size:40px;
+  line-height:1;
+  flex-shrink:0;
+  filter:drop-shadow(0 6px 14px rgba(15,23,42,.18));
+}
 .w-main{
   font-family:var(--serif);
-  font-size:clamp(24px,5vw,30px);
-  font-weight:600;line-height:1.15;margin:0;
+  font-size:clamp(25px,5.2vw,31px);
+  font-weight:600;
+  line-height:1.12;
+  letter-spacing:-.02em;
+  margin:0;
 }
-.w-sub{
-  margin:0 0 14px;
-  font-size:13px;color:var(--text-muted);line-height:1.6;
-}
-.w-strip{
-  display:grid;grid-template-columns:repeat(3,1fr);
-  gap:8px;margin-bottom:14px;
-}
+.w-sub{margin:0 0 15px;font-size:13px;color:var(--text-2);line-height:1.6}
+.w-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:15px}
 .w-day{
-  display:flex;flex-direction:column;align-items:center;gap:3px;
-  padding:9px 4px;border-radius:11px;background:var(--surface-2);
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  padding:10px 4px;
+  border-radius:var(--r-m);
+  background:var(--fill);
+  transition:transform var(--t) var(--spring-soft),background var(--t-fast);
+  animation:popIn .5s var(--spring-soft) backwards;
 }
-.w-day-l{font-size:11.5px;color:var(--text-muted)}
-.w-day-i{font-size:17px;line-height:1}
-.w-day-t{font-size:12.5px;color:var(--text-muted);font-variant-numeric:tabular-nums}
+@media (hover:hover){.w-day:hover{transform:translateY(-2px);background:var(--fill-2)}}
+.w-day-l{font-size:11.5px;color:var(--text-3)}
+.w-day-i{font-size:18px;line-height:1}
+.w-day-t{font-size:12.5px;color:var(--text-2);font-variant-numeric:tabular-nums}
 .w-day-t b{color:var(--text);font-weight:600}
 
 /* ---------- 三个专栏 ---------- */
 .columns{
   max-width:var(--maxw);
   margin:0 auto;
-  padding:0 24px 84px;
+  padding:0 var(--gutter) 40px;
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));
-  gap:20px;
+  grid-template-columns:repeat(auto-fit,minmax(min(100%,272px),1fr));
+  gap:18px;
   align-items:stretch;
 }
 .col{
   position:relative;
-  display:flex;flex-direction:column;
-  min-height:230px;
-  padding:28px 26px 22px;
-  background:var(--surface);
-  border:1px solid var(--border);
-  border-radius:var(--radius);
-  box-shadow:var(--shadow);
-  text-decoration:none;color:inherit;overflow:hidden;
-  transition:transform .4s cubic-bezier(.2,.8,.2,1),
-             box-shadow .4s cubic-bezier(.2,.8,.2,1),
-             border-color .3s;
+  display:flex;
+  flex-direction:column;
+  min-height:236px;
+  padding:26px 24px 20px;
+  border-radius:var(--r-xl);
+  background:var(--glass);
+  -webkit-backdrop-filter:var(--blur);
+  backdrop-filter:var(--blur);
+  border:1px solid var(--line);
+  box-shadow:var(--sh-2), inset 0 1px 0 var(--sheen);
+  text-decoration:none;
+  color:inherit;
+  overflow:hidden;
+  transition:transform .52s var(--spring-soft), box-shadow .52s var(--spring-soft), border-color var(--t);
 }
 .col::before{
   content:"";
-  position:absolute;top:0;left:0;right:0;height:140px;
-  background:radial-gradient(120% 100% at 14% 0%, var(--tint-soft), transparent 70%);
+  position:absolute;
+  inset:0;
+  border-radius:inherit;
   pointer-events:none;
+  background:radial-gradient(118% 92% at 12% 0%, var(--tint-soft), transparent 66%);
+  opacity:.9;
 }
-.col:hover{
-  transform:translateY(-5px);
-  border-color:transparent;
-  box-shadow:var(--shadow-hover);
+@media (hover:hover){
+  .col:hover{transform:translateY(-6px) scale(1.006);box-shadow:var(--sh-3), inset 0 1px 0 var(--sheen)}
 }
-.col--article{--tint:var(--accent);--tint-soft:var(--accent-soft)}
-.col--note{--tint:var(--accent-2);--tint-soft:var(--accent-2-soft)}
-.col--photo{--tint:var(--accent-3);--tint-soft:var(--accent-3-soft)}
+.col:active{transform:translateY(-1px) scale(.988)}
+.col--article{--tint:var(--accent);--tint-soft:color-mix(in srgb,var(--accent) 18%,transparent)}
+.col--note{--tint:var(--teal);--tint-soft:color-mix(in srgb,var(--teal) 20%,transparent)}
+.col--photo{--tint:var(--purple);--tint-soft:color-mix(in srgb,var(--purple) 18%,transparent)}
 
 .col-num{
   position:absolute;top:22px;right:24px;
   font-size:12px;letter-spacing:.16em;
-  color:var(--text-muted);opacity:.5;
+  color:var(--text-3);
   font-variant-numeric:tabular-nums;
 }
 .col-glyph{
   position:relative;
+  display:grid;place-items:center;
+  width:44px;height:44px;
+  border-radius:15px;
   font-family:var(--serif);
-  font-size:30px;font-weight:600;line-height:1;
-  color:var(--tint);margin-bottom:18px;
+  font-size:21px;font-weight:600;line-height:1;
+  color:#fff;
+  background:linear-gradient(150deg,var(--tint),color-mix(in srgb,var(--tint) 55%,var(--purple)));
+  box-shadow:0 10px 22px -10px color-mix(in srgb,var(--tint) 85%,transparent), inset 0 1px 0 rgba(255,255,255,.42);
+  margin-bottom:17px;
+  transition:transform .5s var(--spring);
 }
+@media (hover:hover){.col:hover .col-glyph{transform:scale(1.07) rotate(-3deg)}}
 .col-title{
   position:relative;
   font-family:var(--serif);
@@ -209,79 +241,82 @@
 }
 .col-desc{
   position:relative;
-  margin:0 0 22px;
-  font-size:14.5px;line-height:1.78;
-  color:var(--text-muted);
+  margin:0 0 20px;
+  font-size:14.5px;line-height:1.75;
+  color:var(--text-2);
   flex:1 1 auto;
 }
 .col-foot{
   position:relative;
   display:flex;align-items:center;justify-content:space-between;gap:10px;
   padding-top:13px;
-  border-top:1px solid var(--border);
-  font-size:13px;color:var(--text-muted);
+  border-top:1px solid var(--line);
+  font-size:13px;color:var(--text-3);
 }
-.col-arrow{
-  color:var(--tint);font-size:16px;
-  transition:transform .3s cubic-bezier(.2,.8,.2,1);
-}
-.col:hover .col-arrow{transform:translateX(5px)}
+.col-arrow{color:var(--tint);font-size:16px;transition:transform .34s var(--spring)}
+@media (hover:hover){.col:hover .col-arrow{transform:translateX(5px)}}
 
 @media (max-width:860px){
   .modules{grid-template-columns:1fr}
 }
 @media (max-width:720px){
-  .hero{padding:26px 20px 22px}
-  .profile{gap:18px;align-items:flex-start}
-  .avatar{width:70px;height:70px}
-  .modules{padding:0 20px 22px;gap:16px}
-  .mod{padding:18px 18px 14px}
-  .columns{padding:0 20px 66px;gap:16px}
-  .col{min-height:0;padding:24px 22px 18px}
-  .col-glyph{font-size:27px;margin-bottom:15px}
+  .hero{padding:24px var(--gutter) 20px}
+  .profile{gap:16px;padding:18px;align-items:flex-start;border-radius:26px}
+  .avatar{width:66px;height:66px}
+  .modules{padding:0 var(--gutter) 20px;gap:14px}
+  .mod{padding:18px 18px 14px;border-radius:26px}
+  .columns{padding:0 var(--gutter) 30px;gap:14px}
+  .col{min-height:0;padding:22px 20px 17px;border-radius:26px}
+  .col-glyph{width:40px;height:40px;font-size:19px;border-radius:14px;margin-bottom:14px}
 }
 </style>
 </head>
 
 <body>
 
+<div class="aura" aria-hidden="true"><i></i><i></i><i></i></div>
+
 <!-- ============ 导航栏 ============ -->
-<header class="topnav">
+<header class="topnav" id="topnav">
   <div class="topnav-inner">
     <a class="brand" href="index.html">
-      <span class="brand-cn">言一</span>
-      <span class="brand-py">Yán Yī</span>
+      <span class="brand-mark">言</span>
+      <span class="brand-text"><b>言一</b><i>Yán Yī</i></span>
     </a>
     <nav class="nav-links">
+      <span class="nav-pill" aria-hidden="true"></span>
       <a href="index.html" data-match="index.html calendar.html weather.html">首页</a>
       <a href="articles.html" data-match="articles.html">文章</a>
       <a href="notes.html" data-match="notes.html">随笔</a>
       <a href="gallery.html" data-match="gallery.html">相片馆</a>
     </nav>
-    <button class="theme-toggle" id="themeToggle" aria-label="切换深浅色主题">
-      <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
-        <circle cx="12" cy="12" r="4.2"/>
-        <path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.2 5.2l1.4 1.4M17.4 17.4l1.4 1.4M18.8 5.2l-1.4 1.4M6.6 17.4l-1.4 1.4"/>
-      </svg>
-      <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M20.5 14.2A8.5 8.5 0 1 1 9.8 3.5a6.8 6.8 0 0 0 10.7 10.7z"/>
-      </svg>
-    </button>
+    <div class="nav-actions">
+      <button class="icon-btn theme-toggle" id="themeToggle" aria-label="切换深浅色主题">
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+          <circle cx="12" cy="12" r="4.2"/>
+          <path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.2 5.2l1.4 1.4M17.4 17.4l1.4 1.4M18.8 5.2l-1.4 1.4M6.6 17.4l-1.4 1.4"/>
+        </svg>
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20.5 14.2A8.5 8.5 0 1 1 9.8 3.5a6.8 6.8 0 0 0 10.7 10.7z"/>
+        </svg>
+      </button>
+    </div>
   </div>
+  <div class="nav-progress" aria-hidden="true"></div>
 </header>
 
 <div class="page">
 
   <header class="hero">
-    <div class="profile">
-      <img class="avatar" src="avatar.png" alt="言一的头像">
+    <div class="profile spot">
+      <img class="avatar" src="avatar.png" alt="言一的头像" width="88" height="88">
       <div class="profile-info">
         <h1>言一</h1>
         <p class="bio">设计师，偶尔写代码。在这里放我的长文、碎片，和拍到的光。</p>
         <nav class="socials">
           <a href="https://github.com/ESAHC-SHEN" target="_blank" rel="noopener noreferrer">GitHub</a>
           <a href="https://space.bilibili.com/349922207?spm_id_from=333.1007.0.0" target="_blank" rel="noopener noreferrer">B 站</a>
-          <span class="social-text" title="我的邮箱（可选中复制）">247556861@qq.com</span>
+          <span class="social-text" data-copy="247556861@qq.com" title="点击复制邮箱">247556861@qq.com</span>
         </nav>
       </div>
     </div>
@@ -289,7 +324,7 @@
 
   <section class="modules">
 
-    <article class="card mod" id="modToday">
+    <article class="card mod lift spot" id="modToday" tabindex="0" role="link" aria-label="打开日历">
       <div class="mod-head">
         <span class="mod-label">今天</span>
         <a class="ghost-btn push-right" href="calendar.html">打开日历 <span class="arw">→</span></a>
@@ -304,7 +339,7 @@
       </div>
     </article>
 
-    <article class="card mod" id="modWeather">
+    <article class="card mod lift spot" id="modWeather" tabindex="0" role="link" aria-label="查看天气详情">
       <div class="mod-head">
         <span class="mod-label">天气</span>
         <a class="ghost-btn push-right" href="weather.html">查看详情 <span class="arw">→</span></a>
@@ -324,7 +359,7 @@
   </section>
 
   <main class="columns">
-    <a class="col col--article" href="articles.html">
+    <a class="col col--article spot" href="articles.html">
       <span class="col-num">01</span>
       <span class="col-glyph">文</span>
       <h2 class="col-title">文章</h2>
@@ -335,7 +370,7 @@
       </span>
     </a>
 
-    <a class="col col--note" href="notes.html">
+    <a class="col col--note spot" href="notes.html">
       <span class="col-num">02</span>
       <span class="col-glyph">碎</span>
       <h2 class="col-title">随笔</h2>
@@ -346,11 +381,11 @@
       </span>
     </a>
 
-    <a class="col col--photo" href="gallery.html">
+    <a class="col col--photo spot" href="gallery.html">
       <span class="col-num">03</span>
       <span class="col-glyph">影</span>
       <h2 class="col-title">相片馆</h2>
-      <p class="col-desc">按下快门的那些瞬间。点开可以看大图。</p>
+      <p class="col-desc">按下快门的那些瞬间。缩略图秒开，点开可以看大图，还能顺手压缩照片。</p>
       <span class="col-foot">
         <span>7 张</span>
         <span class="col-arrow" aria-hidden="true">→</span>
@@ -363,36 +398,59 @@
       <span class="stat"><b id="pvTotal">—</b><i>总浏览</i></span>
       <span class="stat"><b id="pvToday">—</b><i>今日</i></span>
     </div>
-    <p class="foot-line">
-      © <span id="year">2025</span> 言一 ·
-      <a href="articles.html">文章</a> ·
-      <a href="notes.html">随笔</a> ·
-      <a href="gallery.html">相片馆</a> ·
-      <span class="foot-mail">247556861@qq.com</span>
-    </p>
-    <p class="foot-ver">version <span id="siteVersion">beta0.12</span></p>
+    <p class="foot-line">© 2026 言一</p>
+    <p class="foot-ver">version <span id="siteVersion">beta 0.20</span></p>
   </footer>
 
 </div>
+
+<nav class="tabbar" aria-label="主导航">
+  <div class="tabbar-inner">
+    <a class="tab" href="index.html" data-match="index.html calendar.html weather.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10.6 12 4l8 6.6V19a1.6 1.6 0 0 1-1.6 1.6h-3.6v-5.4H9.2v5.4H5.6A1.6 1.6 0 0 1 4 19z"/></svg>
+      <span>首页</span>
+    </a>
+    <a class="tab" href="articles.html" data-match="articles.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3.6h6.6L18 8v12a1.4 1.4 0 0 1-1.4 1.4H7A1.4 1.4 0 0 1 5.6 20V5A1.4 1.4 0 0 1 7 3.6z"/><path d="M13.2 3.6V8H18M8.6 12.4h6.8M8.6 15.8h4.4"/></svg>
+      <span>文章</span>
+    </a>
+    <a class="tab" href="notes.html" data-match="notes.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20.2 3.8c-6.2.2-10.7 4.3-12.4 10L6 20l6.2-1.8c5.7-1.7 9.8-6.2 10-12.4z"/><path d="M14.6 9.4 6 20"/></svg>
+      <span>随笔</span>
+    </a>
+    <a class="tab" href="gallery.html" data-match="gallery.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.6" y="4.8" width="16.8" height="14.4" rx="3.2"/><circle cx="9" cy="10" r="1.5"/><path d="m4.4 16.8 4.9-4.4 3.9 3.5 3-2.5 3.4 3"/></svg>
+      <span>相片馆</span>
+    </a>
+  </div>
+</nav>
 
 <script src="assets/app.js" defer></script>
 <script src="assets/calendar.js" defer></script>
 <script src="assets/weather.js" defer></script>
 
 <script>
-// 点卡片空白处也能跳转（除按钮/链接本身外）
 document.addEventListener('DOMContentLoaded', function () {
-  var m1 = document.getElementById('modToday');
-  if (m1) m1.addEventListener('click', function (e) {
-    if (e.target.closest('a, button')) return;
-    location.href = 'calendar.html';
-  });
+  // 卡片空白处也能跳转（按钮 / 链接除外），键盘 Enter 同样可用
+  function linkify(id, href) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('click', function (e) {
+      if (e.target.closest('a, button')) return;
+      location.href = href;
+    });
+    el.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        location.href = href;
+      }
+    });
+  }
+  linkify('modToday', 'calendar.html');
+  linkify('modWeather', 'weather.html');
 
-  var m2 = document.getElementById('modWeather');
-  if (m2) m2.addEventListener('click', function (e) {
-    if (e.target.closest('a, button')) return;
-    location.href = 'weather.html';
-  });
+  YY.animate('.modules .mod', 90);
+  YY.animate('.columns .col', 80);
 });
 </script>
 
