@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#F2F2F7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+<title>学习 · 言一</title>
+<meta name="description" content="番茄钟、待办、倒数日常用工具，和常去的知识库。">
+
+<script>
+(function(){
+  document.documentElement.classList.add('js');
+  try{
+    var t = localStorage.getItem('theme');
+    if(!t && window.matchMedia('(prefers-color-scheme: dark)').matches) t = 'dark';
+    if(t) document.documentElement.dataset.theme = t;
+  }catch(e){}
+})();
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/base.css">
+
+<style>
+/* =========================================================
+   学习页
+   番茄钟 + 待办 + 倒数日 + 知识库
+   ========================================================= */
+.study{
+  max-width:var(--maxw);
+  margin:0 auto;
+  padding:0 var(--gutter) 44px;
+  display:flex;
+  flex-direction:column;
+  gap:18px;
+}
+
+/* ---------- 番茄钟 ---------- */
+.pomo{
+  display:grid;
+  grid-template-columns:300px 1fr;
+  gap:10px;
+  align-items:center;
+  padding:28px 30px;
+  border-radius:var(--r-xl);
+}
+.pomo-stage{
+  position:relative;
+  width:252px;height:252px;
+  margin:0 auto;
+  display:grid;
+  place-items:center;
+}
+.pomo-ring{position:absolute;inset:0;transform:rotate(-90deg)}
+.pomo-ring .track{
+  fill:none;
+  stroke:var(--fill-2);
+  stroke-width:11;
+}
+.pomo-ring .prog{
+  fill:none;
+  stroke:url(#pomoGrad);
+  stroke-width:11;
+  stroke-linecap:round;
+  transition:stroke-dashoffset .5s var(--ease);
+}
+.pomo-time{
+  font-family:var(--serif);
+  font-size:52px;
+  font-weight:600;
+  letter-spacing:-.02em;
+  font-variant-numeric:tabular-nums;
+  line-height:1;
+}
+.pomo-state{
+  margin-top:8px;
+  font-size:13px;
+  color:var(--text-3);
+  letter-spacing:.1em;
+}
+.pomo.is-focus .pomo-state{color:var(--accent)}
+.pomo.is-break .pomo-state{color:var(--green)}
+
+.pomo-ctrl{display:flex;flex-direction:column;gap:16px;min-width:0}
+.pomo-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.pomo-custom{
+  display:flex;align-items:center;gap:8px;
+  font-size:13.5px;color:var(--text-2);
+}
+.pomo-custom input{
+  width:64px;height:34px;
+  padding:0 10px;
+  border:1px solid var(--line);
+  border-radius:var(--r-s);
+  background:var(--glass-thin);
+  font-size:14px;
+  font-variant-numeric:tabular-nums;
+  outline:none;
+  transition:border-color var(--t-fast), box-shadow var(--t-fast);
+}
+.pomo-custom input:focus{
+  border-color:color-mix(in srgb, var(--accent) 60%, transparent);
+  box-shadow:0 0 0 3.5px color-mix(in srgb, var(--accent) 15%, transparent);
+}
+.pomo-actions{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.pomo-auto{display:flex;align-items:center;gap:9px;font-size:13.5px;color:var(--text-2)}
+.pomo-stats{
+  display:flex;gap:9px;flex-wrap:wrap;
+  padding-top:15px;
+  border-top:1px solid var(--line);
+}
+.pstat{
+  flex:1 1 0;
+  min-width:96px;
+  display:flex;flex-direction:column;align-items:center;gap:2px;
+  padding:11px 8px;
+  border-radius:var(--r-m);
+  background:var(--fill);
+}
+.pstat b{font-size:17px;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.pstat span{font-size:11.5px;color:var(--text-3)}
+
+/* ---------- 待办 / 倒数日 ---------- */
+.duo{
+  display:grid;
+  grid-template-columns:1.15fr 1fr;
+  gap:18px;
+  align-items:stretch;
+}
+.panel{
+  display:flex;
+  flex-direction:column;
+  padding:22px 24px 18px;
+  border-radius:var(--r-xl);
+}
+.panel-head{
+  display:flex;align-items:center;gap:10px;
+  margin-bottom:14px;
+}
+.panel-head h2{
+  font-family:var(--serif);
+  font-size:18px;font-weight:600;
+  margin:0;letter-spacing:-.01em;
+}
+.panel-count{font-size:12px;color:var(--text-3)}
+
+.todo-input{display:flex;gap:8px;margin-bottom:12px}
+.todo-input input{
+  flex:1 1 auto;
+  min-width:0;
+  height:38px;
+  padding:0 14px;
+  border:1px solid var(--line);
+  border-radius:var(--r-full);
+  background:var(--glass-thin);
+  font-size:14px;
+  outline:none;
+  transition:border-color var(--t-fast), box-shadow var(--t-fast);
+}
+.todo-input input:focus{
+  border-color:color-mix(in srgb, var(--accent) 60%, transparent);
+  box-shadow:0 0 0 3.5px color-mix(in srgb, var(--accent) 15%, transparent);
+}
+.todo-list{
+  display:flex;flex-direction:column;gap:6px;
+  overflow-y:auto;
+  max-height:300px;
+  margin:0 -6px;
+  padding:0 6px;
+}
+.todo{
+  display:flex;align-items:center;gap:11px;
+  padding:9px 12px;
+  border-radius:var(--r-m);
+  transition:background var(--t-fast);
+  animation:riseIn .38s var(--ease) both;
+}
+@media (hover:hover){.todo:hover{background:var(--fill)}}
+.todo-check{
+  flex:0 0 auto;
+  width:21px;height:21px;
+  border:1.6px solid var(--fill-3);
+  border-radius:50%;
+  background:none;
+  cursor:pointer;
+  display:grid;place-items:center;
+  color:#fff;
+  transition:background var(--t-fast) var(--spring), border-color var(--t-fast), transform var(--t-fast) var(--spring);
+  -webkit-tap-highlight-color:transparent;
+}
+.todo-check svg{width:11px;height:11px;opacity:0;transform:scale(.4);transition:opacity var(--t-fast),transform var(--t) var(--spring)}
+.todo.is-done .todo-check{background:var(--green);border-color:var(--green)}
+.todo.is-done .todo-check svg{opacity:1;transform:scale(1)}
+.todo-check:active{transform:scale(.85)}
+.todo-text{
+  flex:1 1 auto;
+  min-width:0;
+  font-size:14.5px;
+  line-height:1.55;
+  overflow-wrap:anywhere;
+  transition:color var(--t), opacity var(--t);
+}
+.todo.is-done .todo-text{color:var(--text-3);text-decoration:line-through;opacity:.75}
+.todo-del{
+  flex:0 0 auto;
+  width:26px;height:26px;
+  border:0;border-radius:8px;
+  background:none;
+  color:var(--text-3);
+  cursor:pointer;
+  display:grid;place-items:center;
+  opacity:0;
+  transition:opacity var(--t-fast), color var(--t-fast), background var(--t-fast);
+  -webkit-tap-highlight-color:transparent;
+}
+.todo:hover .todo-del,.todo-del:focus-visible{opacity:1}
+@media (hover:none){.todo-del{opacity:.55}}
+@media (hover:hover){.todo-del:hover{color:var(--red);background:color-mix(in srgb,var(--red) 12%,transparent)}}
+.todo-del svg{width:13px;height:13px}
+.todo-empty,.cd-empty{
+  padding:26px 10px;
+  text-align:center;
+  font-size:13.5px;
+  color:var(--text-3);
+}
+
+/* 倒数日 */
+.cd-input{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.cd-input input{
+  height:38px;
+  padding:0 13px;
+  border:1px solid var(--line);
+  border-radius:var(--r-full);
+  background:var(--glass-thin);
+  font-size:13.5px;
+  outline:none;
+  transition:border-color var(--t-fast), box-shadow var(--t-fast);
+}
+.cd-input input:focus{
+  border-color:color-mix(in srgb, var(--accent) 60%, transparent);
+  box-shadow:0 0 0 3.5px color-mix(in srgb, var(--accent) 15%, transparent);
+}
+.cd-input .cd-name{flex:1 1 130px;min-width:0}
+.cd-input .cd-date{flex:0 0 auto;color-scheme:light}
+[data-theme="dark"] .cd-input .cd-date{color-scheme:dark}
+.cd-list{display:flex;flex-direction:column;gap:8px;overflow-y:auto;max-height:300px;margin:0 -6px;padding:0 6px}
+.cd-item{
+  display:flex;align-items:center;gap:13px;
+  padding:11px 14px;
+  border-radius:var(--r-m);
+  background:var(--fill);
+  animation:riseIn .38s var(--ease) both;
+}
+.cd-days{
+  flex:0 0 auto;
+  min-width:56px;
+  text-align:center;
+  font-family:var(--serif);
+  font-size:21px;font-weight:600;
+  font-variant-numeric:tabular-nums;
+  line-height:1.1;
+  color:var(--accent);
+}
+.cd-days small{display:block;font-family:var(--font);font-size:10.5px;font-weight:500;color:var(--text-3);margin-top:2px;letter-spacing:.06em}
+.cd-item.is-past .cd-days{color:var(--text-3)}
+.cd-info{flex:1 1 auto;min-width:0}
+.cd-info b{display:block;font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cd-info span{font-size:12px;color:var(--text-3);font-variant-numeric:tabular-nums}
+.cd-del{
+  flex:0 0 auto;
+  width:26px;height:26px;border:0;border-radius:8px;
+  background:none;color:var(--text-3);cursor:pointer;
+  display:grid;place-items:center;
+  opacity:0;
+  transition:opacity var(--t-fast),color var(--t-fast),background var(--t-fast);
+}
+.cd-item:hover .cd-del,.cd-del:focus-visible{opacity:1}
+@media (hover:none){.cd-del{opacity:.55}}
+@media (hover:hover){.cd-del:hover{color:var(--red);background:color-mix(in srgb,var(--red) 12%,transparent)}}
+.cd-del svg{width:13px;height:13px}
+
+/* ---------- 知识库 ---------- */
+.libs{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(min(100%,240px),1fr));
+  gap:13px;
+}
+.lib{
+  display:flex;align-items:center;gap:13px;
+  padding:15px 17px;
+  border-radius:var(--r-l);
+  background:var(--glass);
+  -webkit-backdrop-filter:var(--blur);
+  backdrop-filter:var(--blur);
+  border:1px solid var(--line);
+  box-shadow:var(--sh-1), inset 0 1px 0 var(--sheen);
+  text-decoration:none;
+  color:inherit;
+  transition:transform var(--t) var(--spring-soft), box-shadow var(--t) var(--spring-soft), border-color var(--t-fast);
+}
+@media (hover:hover){
+  .lib:hover{transform:translateY(-3px);box-shadow:var(--sh-2), inset 0 1px 0 var(--sheen);border-color:color-mix(in srgb,var(--lib-c,var(--accent)) 42%,transparent)}
+}
+.lib:active{transform:scale(.98)}
+.lib-glyph{
+  flex:0 0 auto;
+  display:grid;place-items:center;
+  width:40px;height:40px;
+  border-radius:13px;
+  font-family:var(--serif);
+  font-size:17px;font-weight:700;
+  color:#fff;
+  background:linear-gradient(150deg,var(--lib-c,var(--accent)),color-mix(in srgb,var(--lib-c,var(--accent)) 55%,var(--purple)));
+  box-shadow:0 8px 18px -8px color-mix(in srgb,var(--lib-c,var(--accent)) 85%,transparent), inset 0 1px 0 rgba(255,255,255,.42);
+}
+.lib-info{min-width:0;flex:1 1 auto}
+.lib-info b{display:block;font-size:14.5px;font-weight:600;letter-spacing:-.01em}
+.lib-info span{
+  display:block;
+  font-size:12px;color:var(--text-3);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  margin-top:1px;
+}
+.lib-arrow{flex:0 0 auto;color:var(--text-3);font-size:14px;transition:transform var(--t) var(--spring),color var(--t-fast)}
+@media (hover:hover){.lib:hover .lib-arrow{transform:translate(2px,-2px);color:var(--lib-c,var(--accent))}}
+
+@media (max-width:860px){
+  .pomo{grid-template-columns:1fr;gap:20px}
+  .duo{grid-template-columns:1fr}
+}
+@media (max-width:720px){
+  .study{padding:0 var(--gutter) 32px;gap:14px}
+  .pomo{padding:20px 18px;border-radius:26px}
+  .pomo-stage{width:224px;height:224px}
+  .pomo-time{font-size:45px}
+  .panel{padding:18px 18px 15px;border-radius:26px}
+}
+</style>
+</head>
+
+<body>
+
+<div class="aura" aria-hidden="true"><i></i><i></i><i></i></div>
+
+<header class="topnav" id="topnav">
+  <div class="topnav-inner">
+    <a class="brand" href="index.html">
+      <span class="brand-mark">言</span>
+      <span class="brand-text"><b>言一</b><i>Yán Yī</i></span>
+    </a>
+    <nav class="nav-links">
+      <span class="nav-pill" aria-hidden="true"></span>
+      <a href="index.html" data-match="index.html calendar.html weather.html">首页</a>
+      <a href="articles.html" data-match="articles.html article-whitespace.html article-why-blog.html">文章</a>
+      <a href="notes.html" data-match="notes.html">随笔</a>
+      <a href="gallery.html" data-match="gallery.html">相片馆</a>
+      <a href="study.html" data-match="study.html">学习</a>
+      <a href="play.html" data-match="play.html">娱乐</a>
+    </nav>
+    <div class="nav-actions">
+      <button class="icon-btn theme-toggle" id="themeToggle" aria-label="切换深浅色主题">
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+          <circle cx="12" cy="12" r="4.2"/>
+          <path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.2 5.2l1.4 1.4M17.4 17.4l1.4 1.4M18.8 5.2l-1.4 1.4M6.6 17.4l-1.4 1.4"/>
+        </svg>
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20.5 14.2A8.5 8.5 0 1 1 9.8 3.5a6.8 6.8 0 0 0 10.7 10.7z"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+  <div class="nav-progress" aria-hidden="true"></div>
+</header>
+
+<div class="page">
+
+  <header class="site-header">
+    <p class="eyebrow">学习</p>
+    <h1 class="page-title">学习</h1>
+    <p class="page-sub">一个番茄钟、一张待办单、几个倒数日，和常去的知识库。数据都只存在这台设备的浏览器里。</p>
+  </header>
+
+  <main class="study">
+
+    <!-- ============ 番茄钟 ============ -->
+    <section class="pomo card spot" id="pomoCard" aria-label="番茄钟">
+      <div class="pomo-stage">
+        <svg class="pomo-ring" viewBox="0 0 252 252" aria-hidden="true">
+          <defs>
+            <linearGradient id="pomoGrad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#0A84FF"/>
+              <stop offset="1" stop-color="#BF5AF2"/>
+            </linearGradient>
+          </defs>
+          <circle class="track" cx="126" cy="126" r="112"/>
+          <circle class="prog" id="pomoProg" cx="126" cy="126" r="112"/>
+        </svg>
+        <div style="text-align:center">
+          <div class="pomo-time" id="pomoTime">25:00</div>
+          <div class="pomo-state" id="pomoState">准备专注</div>
+        </div>
+      </div>
+
+      <div class="pomo-ctrl">
+        <div class="pomo-row">
+          <div class="segmented" id="pomoSeg" role="tablist" aria-label="番茄钟模式">
+            <span class="seg-thumb" aria-hidden="true"></span>
+            <button class="seg-item is-on" type="button" role="tab" data-min="25" data-kind="focus" aria-selected="true">专注 25</button>
+            <button class="seg-item" type="button" role="tab" data-min="5" data-kind="break" aria-selected="false">短休 5</button>
+            <button class="seg-item" type="button" role="tab" data-min="15" data-kind="break" aria-selected="false">长休 15</button>
+          </div>
+          <label class="pomo-custom">
+            自定义
+            <input type="number" id="pomoCustom" min="1" max="180" step="1" placeholder="分钟" aria-label="自定义分钟数">
+          </label>
+        </div>
+
+        <div class="pomo-actions">
+          <button class="btn btn--primary" id="pomoStart" type="button">开始</button>
+          <button class="btn" id="pomoReset" type="button">重置</button>
+          <label class="pomo-auto push-right">
+            完成后自动下一段
+            <button class="switch" id="pomoAuto" type="button" role="switch" aria-checked="false" aria-label="完成后自动下一段"></button>
+          </label>
+        </div>
+
+        <div class="pomo-stats">
+          <div class="pstat"><b id="pomoToday">0</b><span>今日完成</span></div>
+          <div class="pstat"><b id="pomoTotal">0</b><span>累计番茄</span></div>
+          <div class="pstat"><b id="pomoMins">0</b><span>累计分钟</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 待办 + 倒数日 ============ -->
+    <div class="duo">
+
+      <section class="panel card spot" aria-label="待办清单">
+        <div class="panel-head">
+          <h2>待办清单</h2>
+          <span class="panel-count" id="todoCount"></span>
+        </div>
+        <div class="todo-input">
+          <input type="text" id="todoInput" maxlength="80" placeholder="要做点什么？回车添加" aria-label="新待办">
+          <button class="btn btn--tint" id="todoAdd" type="button">添加</button>
+        </div>
+        <div class="todo-list" id="todoList"></div>
+      </section>
+
+      <section class="panel card spot" aria-label="倒数日">
+        <div class="panel-head">
+          <h2>倒数日</h2>
+          <span class="panel-count" id="cdCount"></span>
+        </div>
+        <div class="cd-input">
+          <input type="text" id="cdName" class="cd-name" maxlength="20" placeholder="什么事？如：六级考试" aria-label="倒数日名称">
+          <input type="date" id="cdDate" class="cd-date" aria-label="目标日期">
+          <button class="btn btn--tint" id="cdAdd" type="button">添加</button>
+        </div>
+        <div class="cd-list" id="cdList"></div>
+      </section>
+
+    </div>
+
+    <!-- ============ 知识库 ============ -->
+    <section aria-label="知识库">
+      <p class="section-label">常去的知识库</p>
+      <div class="libs" id="libs">
+        <a class="lib spot" style="--lib-c:#0A84FF" href="https://www.shui5.cn/" target="_blank" rel="noopener noreferrer">
+          <span class="lib-glyph">税</span>
+          <span class="lib-info"><b>税屋</b><span>财税法规库 · 政策解读与实务</span></span>
+          <span class="lib-arrow">↗</span>
+        </a>
+        <a class="lib spot" style="--lib-c:#40C8E0" href="https://docs.maoyanqing.com/" target="_blank" rel="noopener noreferrer">
+          <span class="lib-glyph">审</span>
+          <span class="lib-info"><b>审计文库</b><span>审计准则、底稿与案例资料</span></span>
+          <span class="lib-arrow">↗</span>
+        </a>
+        <a class="lib spot" style="--lib-c:#5E5CE6" href="https://docs.maoyanqing.com/" target="_blank" rel="noopener noreferrer">
+          <span class="lib-glyph">六</span>
+          <span class="lib-info"><b>六级真题在线</b><span>CET-6 历年真题与听力</span></span>
+          <span class="lib-arrow">↗</span>
+        </a>
+        <a class="lib spot" style="--lib-c:#30D158" href="https://www.chinatax.gov.cn/" target="_blank" rel="noopener noreferrer">
+          <span class="lib-glyph">局</span>
+          <span class="lib-info"><b>国家税务总局</b><span>官方税收政策与公告原文</span></span>
+          <span class="lib-arrow">↗</span>
+        </a>
+        <a class="lib spot" style="--lib-c:#FF9F0A" href="https://www.cicpa.org.cn/" target="_blank" rel="noopener noreferrer">
+          <span class="lib-glyph">注</span>
+          <span class="lib-info"><b>中国注册会计师协会</b><span>考试报名 · 准则动态</span></span>
+          <span class="lib-arrow">↗</span>
+        </a>
+        <a class="lib spot" style="--lib-c:#BF5AF2" href="https://www.icourse163.org/" target="_blank" rel="noopener noreferrer">
+          <span class="lib-glyph">慕</span>
+          <span class="lib-info"><b>中国大学 MOOC</b><span>高校公开课，补基础很好用</span></span>
+          <span class="lib-arrow">↗</span>
+        </a>
+        <a class="lib spot" style="--lib-c:#FF375F" href="https://cet-bm.neea.edu.cn/" target="_blank" rel="noopener noreferrer">
+          <span class="lib-glyph">报</span>
+          <span class="lib-info"><b>四六级考试官网</b><span>报名、准考证与成绩查询</span></span>
+          <span class="lib-arrow">↗</span>
+        </a>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <span class="seal" aria-hidden="true">言一</span>
+    <p class="foot-line">© 2026 言一</p>
+    <p class="foot-ver">version <span id="siteVersion">beta 0.30</span></p>
+  </footer>
+
+</div>
+
+<nav class="tabbar" aria-label="主导航">
+  <div class="tabbar-inner">
+    <a class="tab" href="index.html" data-match="index.html calendar.html weather.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10.6 12 4l8 6.6V19a1.6 1.6 0 0 1-1.6 1.6h-3.6v-5.4H9.2v5.4H5.6A1.6 1.6 0 0 1 4 19z"/></svg>
+      <span>首页</span>
+    </a>
+    <a class="tab" href="articles.html" data-match="articles.html article-whitespace.html article-why-blog.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3.6h6.6L18 8v12a1.4 1.4 0 0 1-1.4 1.4H7A1.4 1.4 0 0 1 5.6 20V5A1.4 1.4 0 0 1 7 3.6z"/><path d="M13.2 3.6V8H18M8.6 12.4h6.8M8.6 15.8h4.4"/></svg>
+      <span>文章</span>
+    </a>
+    <a class="tab" href="notes.html" data-match="notes.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20.2 3.8c-6.2.2-10.7 4.3-12.4 10L6 20l6.2-1.8c5.7-1.7 9.8-6.2 10-12.4z"/><path d="M14.6 9.4 6 20"/></svg>
+      <span>随笔</span>
+    </a>
+    <a class="tab" href="gallery.html" data-match="gallery.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.6" y="4.8" width="16.8" height="14.4" rx="3.2"/><circle cx="9" cy="10" r="1.5"/><path d="m4.4 16.8 4.9-4.4 3.9 3.5 3-2.5 3.4 3"/></svg>
+      <span>相片馆</span>
+    </a>
+    <a class="tab" href="study.html" data-match="study.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2.6 4.6h5.8a3.6 3.6 0 0 1 3.6 3.6v12.2a3 3 0 0 0-3-3H2.6z"/><path d="M21.4 4.6h-5.8a3.6 3.6 0 0 0-3.6 3.6v12.2a3 3 0 0 1 3-3h6.4z"/></svg>
+      <span>学习</span>
+    </a>
+    <a class="tab" href="play.html" data-match="play.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.6" y="3.6" width="16.8" height="16.8" rx="4.2"/><circle cx="8.6" cy="8.6" r="1.15" fill="currentColor" stroke="none"/><circle cx="15.4" cy="15.4" r="1.15" fill="currentColor" stroke="none"/><circle cx="15.4" cy="8.6" r="1.15" fill="currentColor" stroke="none"/><circle cx="8.6" cy="15.4" r="1.15" fill="currentColor" stroke="none"/></svg>
+      <span>娱乐</span>
+    </a>
+  </div>
+</nav>
+
+<script src="assets/app.js" defer></script>
+<script src="assets/study.js" defer></script>
+
+</body>
+</html>

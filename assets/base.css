@@ -1,7 +1,7 @@
 /* =========================================================
    言一 · 共用样式
    Liquid Glass 设计系统（Apple iOS 27 风格）
-   version beta 0.20
+   version beta 0.30
    ---------------------------------------------------------
    1. 设计令牌
    2. 基础与背景氛围
@@ -323,6 +323,9 @@ button,input,select,textarea{font:inherit;color:inherit}
   height:1px;
   background:linear-gradient(90deg,var(--line),transparent);
 }
+
+/* 把元素顶到行尾 */
+.push-right{margin-left:auto}
 
 /* ============ 4. 控件 ============ */
 .btn{
@@ -1035,4 +1038,184 @@ button,input,select,textarea{font:inherit;color:inherit}
 /* 打印 */
 @media print{
   .topnav,.tabbar,.aura,.site-footer{display:none !important}
+}
+
+/* ============ 11. 个人化印记 ============ */
+/* 朱砂印章：页脚的落款 */
+.seal{
+  display:inline-grid;
+  place-items:center;
+  width:46px;height:46px;
+  margin:0 auto 14px;
+  border-radius:10px;
+  background:linear-gradient(150deg,#D43D2E,#A91F14);
+  color:#FFF3E8;
+  font-family:var(--serif);
+  font-size:17px;
+  font-weight:700;
+  letter-spacing:2px;
+  text-indent:2px;
+  line-height:1;
+  transform:rotate(-4deg);
+  box-shadow:0 10px 20px -9px rgba(212,61,46,.6),
+             inset 0 0 0 2px rgba(255,243,232,.5),
+             inset 0 0 14px rgba(110,8,2,.4);
+  opacity:.94;
+  user-select:none;
+  transition:transform var(--t) var(--spring), opacity var(--t);
+}
+@media (hover:hover){.seal:hover{transform:rotate(0deg) scale(1.05);opacity:1}}
+
+/* 点击墨点涟漪（app.js 注入） */
+.ink{
+  position:fixed;
+  z-index:950;
+  width:10px;height:10px;
+  margin:-5px 0 0 -5px;
+  border-radius:50%;
+  background:radial-gradient(circle at 40% 40%,
+    color-mix(in srgb, var(--accent) 88%, #fff),
+    var(--purple));
+  pointer-events:none;
+  animation:inkPop .62s var(--ease) forwards;
+}
+@keyframes inkPop{
+  0%{transform:scale(.35);opacity:.65}
+  100%{transform:scale(3);opacity:0}
+}
+
+/* Logo 彩带彩蛋（app.js 注入） */
+.confetti{
+  position:fixed;
+  z-index:960;
+  width:8px;height:8px;
+  border-radius:2.5px;
+  pointer-events:none;
+}
+
+/* ============ 12. 文章正文排版 ============ */
+.article-wrap{
+  max-width:var(--narrow);
+  margin:0 auto;
+  padding:0 var(--gutter) 40px;
+}
+.article-head{margin-bottom:22px}
+.article-head .meta{margin-top:14px}
+.article-title{
+  font-family:var(--serif);
+  font-size:clamp(28px,5.6vw,38px);
+  font-weight:700;
+  letter-spacing:-.02em;
+  line-height:1.32;
+  margin:10px 0 0;
+}
+.article-cover{
+  margin:0 0 30px;
+  border-radius:var(--r-xl);
+  overflow:hidden;
+  box-shadow:var(--sh-2), inset 0 0 0 1px var(--line);
+}
+.article-cover img{
+  width:100%;
+  aspect-ratio:21/10;
+  object-fit:cover;
+}
+.article-body{
+  font-family:var(--serif);
+  font-size:16.5px;
+  line-height:2.05;
+  letter-spacing:.01em;
+  color:var(--text);
+}
+.article-body p{margin:0 0 1.35em}
+/* 首字下沉 */
+.article-body .lede::first-letter{
+  float:left;
+  font-size:3.15em;
+  font-weight:700;
+  line-height:.86;
+  padding:6px 10px 0 0;
+  color:var(--accent);
+}
+.article-body h2{
+  font-size:22px;
+  font-weight:700;
+  line-height:1.5;
+  margin:2.1em 0 .85em;
+  padding-left:13px;
+  border-left:3px solid transparent;
+  border-image:linear-gradient(180deg,var(--accent),var(--purple)) 1;
+}
+.article-body strong{font-weight:700}
+.article-body em{font-style:italic}
+/* 拉页引文 */
+.article-body blockquote{
+  margin:1.9em 0;
+  padding:22px 26px;
+  border-radius:var(--r-l);
+  background:color-mix(in srgb, var(--accent) 7%, transparent);
+  border:1px solid color-mix(in srgb, var(--accent) 16%, transparent);
+  font-size:17px;
+  line-height:1.95;
+  color:var(--text);
+}
+.article-body blockquote p{margin:0}
+.article-body blockquote p + p{margin-top:.8em}
+/* 装饰分隔线 */
+.article-body hr{
+  border:0;
+  margin:2.4em auto;
+  width:120px;height:14px;
+  background-image:radial-gradient(circle, var(--text-3) 1.6px, transparent 1.7px);
+  background-size:24px 14px;
+  background-repeat:repeat-x;
+  background-position:center;
+  opacity:.7;
+}
+.article-body ul,.article-body ol{margin:0 0 1.35em;padding-left:1.4em}
+.article-body li{margin-bottom:.45em;line-height:1.95}
+.article-body a{color:var(--accent);text-decoration:underline;text-underline-offset:3px;text-decoration-color:color-mix(in srgb,var(--accent) 45%,transparent)}
+/* 上一篇 / 下一篇 */
+.article-nav{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+  margin-top:44px;
+  padding-top:26px;
+  border-top:1px solid var(--line);
+}
+.anav{
+  display:flex;
+  flex-direction:column;
+  gap:5px;
+  padding:16px 19px;
+  border-radius:var(--r-l);
+  background:var(--glass);
+  -webkit-backdrop-filter:var(--blur);
+  backdrop-filter:var(--blur);
+  border:1px solid var(--line);
+  box-shadow:var(--sh-1), inset 0 1px 0 var(--sheen);
+  text-decoration:none;
+  color:inherit;
+  transition:transform var(--t) var(--spring-soft), box-shadow var(--t) var(--spring-soft), border-color var(--t-fast);
+}
+@media (hover:hover){
+  .anav:hover{transform:translateY(-3px);box-shadow:var(--sh-2), inset 0 1px 0 var(--sheen);border-color:color-mix(in srgb,var(--accent) 35%,transparent)}
+}
+.anav span{font-size:12px;color:var(--text-3)}
+.anav b{
+  font-family:var(--serif);
+  font-size:15px;font-weight:600;line-height:1.55;
+  display:-webkit-box;
+  -webkit-line-clamp:2;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
+}
+.anav--next{text-align:right;align-items:flex-end}
+.anav--empty{visibility:hidden}
+@media (max-width:720px){
+  .article-wrap{padding:0 var(--gutter) 30px}
+  .article-body{font-size:16px;line-height:1.98}
+  .article-nav{grid-template-columns:1fr;gap:11px}
+  .anav--next{text-align:left;align-items:flex-start}
 }

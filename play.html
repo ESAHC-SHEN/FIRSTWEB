@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#F2F2F7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+<title>娱乐 · 言一</title>
+<meta name="description" content="每日一言、白噪音，和几个不占时间的摸鱼小工具。">
+
+<script>
+(function(){
+  document.documentElement.classList.add('js');
+  try{
+    var t = localStorage.getItem('theme');
+    if(!t && window.matchMedia('(prefers-color-scheme: dark)').matches) t = 'dark';
+    if(t) document.documentElement.dataset.theme = t;
+  }catch(e){}
+})();
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/base.css">
+
+<style>
+/* =========================================================
+   娱乐页
+   一言 / 白噪音 / 摸鱼四件套
+   ========================================================= */
+.play{
+  max-width:var(--maxw);
+  margin:0 auto;
+  padding:0 var(--gutter) 44px;
+  display:flex;
+  flex-direction:column;
+  gap:18px;
+}
+
+/* ---------- 一言 ---------- */
+.quote{
+  position:relative;
+  padding:34px 34px 24px;
+  border-radius:var(--r-xl);
+  overflow:hidden;
+  text-align:center;
+}
+.quote::before{
+  content:"“";
+  position:absolute;
+  top:-12px;left:18px;
+  font-family:var(--serif);
+  font-size:130px;
+  font-weight:700;
+  color:color-mix(in srgb, var(--accent) 13%, transparent);
+  pointer-events:none;
+  line-height:1;
+}
+.quote-text{
+  position:relative;
+  font-family:var(--serif);
+  font-size:clamp(18px,3.4vw,23px);
+  font-weight:600;
+  line-height:1.85;
+  letter-spacing:.01em;
+  margin:6px auto 12px;
+  max-width:34em;
+  transition:opacity .26s var(--ease), transform .26s var(--ease);
+}
+.quote-from{
+  position:relative;
+  font-size:13px;
+  color:var(--text-3);
+  margin:0 0 18px;
+  transition:opacity .26s var(--ease);
+}
+.quote.is-switching .quote-text{opacity:0;transform:translateY(8px)}
+.quote.is-switching .quote-from{opacity:0}
+.quote-actions{
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:9px;
+  flex-wrap:wrap;
+  padding-top:15px;
+  border-top:1px solid var(--line);
+}
+
+/* ---------- 白噪音 ---------- */
+.noise{
+  display:flex;
+  align-items:center;
+  gap:18px;
+  padding:22px 26px;
+  border-radius:var(--r-xl);
+}
+.noise-btn{
+  flex:0 0 auto;
+  width:58px;height:58px;
+  border:0;
+  border-radius:50%;
+  display:grid;place-items:center;
+  background:linear-gradient(150deg,var(--teal),var(--accent));
+  color:#fff;
+  cursor:pointer;
+  box-shadow:0 14px 28px -12px color-mix(in srgb, var(--accent) 80%, transparent), inset 0 1px 0 rgba(255,255,255,.45);
+  transition:transform var(--t) var(--spring), box-shadow var(--t);
+  -webkit-tap-highlight-color:transparent;
+}
+@media (hover:hover){.noise-btn:hover{transform:scale(1.06)}}
+.noise-btn:active{transform:scale(.93)}
+.noise-btn svg{width:22px;height:22px}
+.noise-btn .icon-pause{display:none}
+.noise.is-on .noise-btn .icon-play{display:none}
+.noise.is-on .noise-btn .icon-pause{display:block}
+.noise.is-on .noise-btn{animation:breathe 2.6s var(--ease-in-out) infinite}
+@keyframes breathe{0%,100%{box-shadow:0 14px 28px -12px color-mix(in srgb,var(--accent) 80%,transparent),0 0 0 0 color-mix(in srgb,var(--accent) 32%,transparent)}50%{box-shadow:0 14px 28px -12px color-mix(in srgb,var(--accent) 80%,transparent),0 0 0 11px transparent}}
+.noise-body{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:11px}
+.noise-title{display:flex;align-items:baseline;gap:9px}
+.noise-title b{font-family:var(--serif);font-size:17px;font-weight:600}
+.noise-title span{font-size:12px;color:var(--text-3)}
+.noise-row{display:flex;align-items:center;gap:12px}
+.noise-vol{display:flex;align-items:center;gap:8px;flex:0 0 168px}
+.noise-vol svg{width:16px;height:16px;color:var(--text-3);flex:0 0 auto}
+.noise-vol .slider{height:24px}
+.noise-eq{
+  flex:0 0 auto;
+  display:flex;align-items:flex-end;gap:2.5px;
+  height:18px;
+}
+.noise-eq i{
+  width:3px;border-radius:2px;
+  background:linear-gradient(180deg,var(--teal),var(--accent));
+  height:4px;
+  opacity:.35;
+  transition:opacity var(--t);
+}
+.noise.is-on .noise-eq i{opacity:.9;animation:eq 1s ease-in-out infinite}
+.noise.is-on .noise-eq i:nth-child(2){animation-delay:.18s}
+.noise.is-on .noise-eq i:nth-child(3){animation-delay:.36s}
+.noise.is-on .noise-eq i:nth-child(4){animation-delay:.09s}
+.noise.is-on .noise-eq i:nth-child(5){animation-delay:.27s}
+@keyframes eq{0%,100%{height:4px}50%{height:16px}}
+
+/* ---------- 摸鱼四件套 ---------- */
+.toys{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:18px;
+}
+.toy{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:13px;
+  padding:26px 22px 22px;
+  border-radius:var(--r-xl);
+  text-align:center;
+}
+.toy-title{
+  font-family:var(--serif);
+  font-size:17px;font-weight:600;
+  margin:0;
+}
+.toy-hint{font-size:12.5px;color:var(--text-3);margin:-7px 0 0}
+.toy-stage{
+  min-height:86px;
+  display:grid;
+  place-items:center;
+  width:100%;
+}
+.toy-result{
+  font-family:var(--serif);
+  font-size:clamp(20px,3.6vw,26px);
+  font-weight:600;
+  line-height:1.6;
+  letter-spacing:.01em;
+}
+.toy-result.small{font-size:16.5px;font-weight:400;font-family:var(--font);color:var(--text-2)}
+
+/* 硬币 */
+.coin{
+  width:76px;height:76px;
+  border-radius:50%;
+  display:grid;place-items:center;
+  font-family:var(--serif);
+  font-size:26px;font-weight:700;
+  color:#8a6414;
+  background:radial-gradient(circle at 34% 30%,#ffe9a8,#f5c842 58%,#d9a41f);
+  box-shadow:0 12px 24px -10px rgba(190,140,20,.6), inset 0 2px 3px rgba(255,255,255,.75), inset 0 -3px 6px rgba(140,95,5,.35);
+  user-select:none;
+}
+.coin.is-flip{animation:flip .9s var(--ease)}
+@keyframes flip{
+  0%{transform:rotateY(0) translateY(0)}
+  35%{transform:rotateY(540deg) translateY(-26px) scale(1.06)}
+  100%{transform:rotateY(1080deg) translateY(0)}
+}
+[data-theme="dark"] .coin{color:#5e430c}
+
+/* 骰子 */
+.die{
+  width:76px;height:76px;
+  border-radius:19px;
+  display:grid;place-items:center;
+  font-size:44px;
+  line-height:1;
+  background:var(--surface);
+  border:1px solid var(--line);
+  box-shadow:var(--sh-2), inset 0 1px 0 var(--sheen);
+  user-select:none;
+}
+.die.is-roll{animation:tumble .7s var(--ease)}
+@keyframes tumble{
+  0%{transform:rotate(0) scale(1)}
+  40%{transform:rotate(235deg) scale(1.14) translateY(-16px)}
+  100%{transform:rotate(360deg) scale(1)}
+}
+
+/* 决定器 */
+.toy-textarea{
+  width:100%;
+  min-height:74px;
+  resize:vertical;
+  padding:11px 14px;
+  border:1px solid var(--line);
+  border-radius:var(--r-m);
+  background:var(--glass-thin);
+  font-size:13.5px;
+  line-height:1.7;
+  outline:none;
+  transition:border-color var(--t-fast), box-shadow var(--t-fast);
+}
+.toy-textarea:focus{
+  border-color:color-mix(in srgb, var(--accent) 60%, transparent);
+  box-shadow:0 0 0 3.5px color-mix(in srgb, var(--accent) 15%, transparent);
+}
+.toy-slot{transition:transform .1s}
+.toy-slot.is-spin{transform:scale(1.04)}
+
+@media (max-width:860px){
+  .toys{grid-template-columns:1fr}
+}
+@media (max-width:720px){
+  .play{padding:0 var(--gutter) 32px;gap:14px}
+  .quote{padding:26px 20px 19px;border-radius:26px}
+  .noise{flex-wrap:wrap;padding:18px;border-radius:26px}
+  .noise-row{flex-wrap:wrap}
+  .noise-vol{flex:1 1 100%}
+  .toy{padding:22px 18px 18px;border-radius:26px}
+}
+</style>
+</head>
+
+<body>
+
+<div class="aura" aria-hidden="true"><i></i><i></i><i></i></div>
+
+<header class="topnav" id="topnav">
+  <div class="topnav-inner">
+    <a class="brand" href="index.html">
+      <span class="brand-mark">言</span>
+      <span class="brand-text"><b>言一</b><i>Yán Yī</i></span>
+    </a>
+    <nav class="nav-links">
+      <span class="nav-pill" aria-hidden="true"></span>
+      <a href="index.html" data-match="index.html calendar.html weather.html">首页</a>
+      <a href="articles.html" data-match="articles.html article-whitespace.html article-why-blog.html">文章</a>
+      <a href="notes.html" data-match="notes.html">随笔</a>
+      <a href="gallery.html" data-match="gallery.html">相片馆</a>
+      <a href="study.html" data-match="study.html">学习</a>
+      <a href="play.html" data-match="play.html">娱乐</a>
+    </nav>
+    <div class="nav-actions">
+      <button class="icon-btn theme-toggle" id="themeToggle" aria-label="切换深浅色主题">
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+          <circle cx="12" cy="12" r="4.2"/>
+          <path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.2 5.2l1.4 1.4M17.4 17.4l1.4 1.4M18.8 5.2l-1.4 1.4M6.6 17.4l-1.4 1.4"/>
+        </svg>
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20.5 14.2A8.5 8.5 0 1 1 9.8 3.5a6.8 6.8 0 0 0 10.7 10.7z"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+  <div class="nav-progress" aria-hidden="true"></div>
+</header>
+
+<div class="page">
+
+  <header class="site-header">
+    <p class="eyebrow">娱乐</p>
+    <h1 class="page-title">娱乐</h1>
+    <p class="page-sub">读一句别人的话，听一点白噪音，再做几个不重要的决定。</p>
+  </header>
+
+  <main class="play">
+
+    <!-- ============ 一言 ============ -->
+    <section class="quote card spot" id="quoteCard" aria-label="每日一言">
+      <p class="quote-text" id="quoteText">正在为你挑一句话…</p>
+      <p class="quote-from" id="quoteFrom"></p>
+      <div class="quote-actions">
+        <div class="segmented" id="quoteSeg" role="tablist" aria-label="句子类型">
+          <span class="seg-thumb" aria-hidden="true"></span>
+          <button class="seg-item is-on" type="button" role="tab" data-kind="hitokoto" aria-selected="true">一言</button>
+          <button class="seg-item" type="button" role="tab" data-kind="soup" aria-selected="false">毒鸡汤</button>
+        </div>
+        <button class="btn btn--sm" id="quoteNext" type="button">换一句</button>
+        <button class="btn btn--sm btn--tint" id="quoteCopy" type="button">复制</button>
+      </div>
+    </section>
+
+    <!-- ============ 白噪音 ============ -->
+    <section class="noise card spot" id="noiseCard" aria-label="白噪音">
+      <button class="noise-btn" id="noiseBtn" type="button" aria-label="播放或暂停白噪音">
+        <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8.2 5.4v13.2c0 .9 1 1.5 1.8 1L20 12.8c.8-.5.8-1.6 0-2L10 4c-.8-.5-1.8.1-1.8 1.4z"/></svg>
+        <svg class="icon-pause" viewBox="0 0 24 24" fill="currentColor"><rect x="6.4" y="4.8" width="4" height="14.4" rx="1.4"/><rect x="13.6" y="4.8" width="4" height="14.4" rx="1.4"/></svg>
+      </button>
+      <div class="noise-body">
+        <div class="noise-title">
+          <b>白噪音</b>
+          <span id="noiseState">本地合成 · 不需要网络</span>
+        </div>
+        <div class="segmented" id="noiseSeg" role="tablist" aria-label="噪音类型" style="align-self:flex-start">
+          <span class="seg-thumb" aria-hidden="true"></span>
+          <button class="seg-item" type="button" role="tab" data-noise="white" aria-selected="false">白噪</button>
+          <button class="seg-item" type="button" role="tab" data-noise="pink" aria-selected="false">粉噪</button>
+          <button class="seg-item is-on" type="button" role="tab" data-noise="brown" aria-selected="true">棕噪</button>
+          <button class="seg-item" type="button" role="tab" data-noise="rain" aria-selected="false">雨声</button>
+        </div>
+        <div class="noise-row">
+          <span class="noise-vol">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5v5h3.5L12 18.6V5.4L7.5 9.5z" fill="currentColor" stroke="none"/><path d="M15.5 9a4.3 4.3 0 0 1 0 6M18 6.6a8 8 0 0 1 0 10.8"/></svg>
+            <input class="slider" id="noiseVol" type="range" min="0" max="100" step="1" value="55" aria-label="音量">
+          </span>
+          <span class="noise-eq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 摸鱼四件套 ============ -->
+    <section aria-label="摸鱼小工具">
+      <p class="section-label">摸鱼四件套</p>
+      <div class="toys">
+
+        <div class="toy card spot">
+          <h2 class="toy-title">抛硬币</h2>
+          <p class="toy-hint">犹豫的时候，让硬币先选</p>
+          <div class="toy-stage">
+            <div class="coin" id="coin">?</div>
+          </div>
+          <button class="btn btn--tint btn--sm" id="coinBtn" type="button">抛一次</button>
+        </div>
+
+        <div class="toy card spot">
+          <h2 class="toy-title">骰子</h2>
+          <p class="toy-hint">六分之一的命运</p>
+          <div class="toy-stage">
+            <div class="die" id="die">⚄</div>
+          </div>
+          <button class="btn btn--tint btn--sm" id="dieBtn" type="button">掷一次</button>
+        </div>
+
+        <div class="toy card spot">
+          <h2 class="toy-title">决定器</h2>
+          <p class="toy-hint">一行一个选项，交给运气</p>
+          <div class="toy-stage" style="align-content:start;gap:10px">
+            <textarea class="toy-textarea" id="pickOpts" rows="3" aria-label="候选选项，一行一个">食堂
+外卖
+自己煮
+不吃了减肥</textarea>
+            <p class="toy-result toy-slot" id="pickResult" style="min-height:1.6em"></p>
+          </div>
+          <button class="btn btn--tint btn--sm" id="pickBtn" type="button">帮我选</button>
+        </div>
+
+        <div class="toy card spot">
+          <h2 class="toy-title">答案之书</h2>
+          <p class="toy-hint">心里默念一个问题，再翻开</p>
+          <div class="toy-stage">
+            <p class="toy-result small" id="bookResult">「问题的答案，早就准备好了。」</p>
+          </div>
+          <button class="btn btn--tint btn--sm" id="bookBtn" type="button">翻开一页</button>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <span class="seal" aria-hidden="true">言一</span>
+    <p class="foot-line">© 2026 言一</p>
+    <p class="foot-ver">version <span id="siteVersion">beta 0.30</span></p>
+  </footer>
+
+</div>
+
+<nav class="tabbar" aria-label="主导航">
+  <div class="tabbar-inner">
+    <a class="tab" href="index.html" data-match="index.html calendar.html weather.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10.6 12 4l8 6.6V19a1.6 1.6 0 0 1-1.6 1.6h-3.6v-5.4H9.2v5.4H5.6A1.6 1.6 0 0 1 4 19z"/></svg>
+      <span>首页</span>
+    </a>
+    <a class="tab" href="articles.html" data-match="articles.html article-whitespace.html article-why-blog.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3.6h6.6L18 8v12a1.4 1.4 0 0 1-1.4 1.4H7A1.4 1.4 0 0 1 5.6 20V5A1.4 1.4 0 0 1 7 3.6z"/><path d="M13.2 3.6V8H18M8.6 12.4h6.8M8.6 15.8h4.4"/></svg>
+      <span>文章</span>
+    </a>
+    <a class="tab" href="notes.html" data-match="notes.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20.2 3.8c-6.2.2-10.7 4.3-12.4 10L6 20l6.2-1.8c5.7-1.7 9.8-6.2 10-12.4z"/><path d="M14.6 9.4 6 20"/></svg>
+      <span>随笔</span>
+    </a>
+    <a class="tab" href="gallery.html" data-match="gallery.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.6" y="4.8" width="16.8" height="14.4" rx="3.2"/><circle cx="9" cy="10" r="1.5"/><path d="m4.4 16.8 4.9-4.4 3.9 3.5 3-2.5 3.4 3"/></svg>
+      <span>相片馆</span>
+    </a>
+    <a class="tab" href="study.html" data-match="study.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2.6 4.6h5.8a3.6 3.6 0 0 1 3.6 3.6v12.2a3 3 0 0 0-3-3H2.6z"/><path d="M21.4 4.6h-5.8a3.6 3.6 0 0 0-3.6 3.6v12.2a3 3 0 0 1 3-3h6.4z"/></svg>
+      <span>学习</span>
+    </a>
+    <a class="tab" href="play.html" data-match="play.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.6" y="3.6" width="16.8" height="16.8" rx="4.2"/><circle cx="8.6" cy="8.6" r="1.15" fill="currentColor" stroke="none"/><circle cx="15.4" cy="15.4" r="1.15" fill="currentColor" stroke="none"/><circle cx="15.4" cy="8.6" r="1.15" fill="currentColor" stroke="none"/><circle cx="8.6" cy="15.4" r="1.15" fill="currentColor" stroke="none"/></svg>
+      <span>娱乐</span>
+    </a>
+  </div>
+</nav>
+
+<script src="assets/app.js" defer></script>
+<script src="assets/play.js" defer></script>
+
+</body>
+</html>

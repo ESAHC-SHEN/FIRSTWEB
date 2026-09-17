@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#F2F2F7" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
-<title>随笔 · 言一</title>
+<title>留白不是空的 · 言一</title>
+<meta name="description" content="说说设计里最容易被忽略的呼吸感。">
 
 <script>
 (function(){
@@ -22,60 +23,6 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/base.css">
-
-<style>
-.notes{
-  max-width:var(--narrow);
-  margin:0 auto;
-  padding:0 var(--gutter) 40px;
-  display:flex;
-  flex-direction:column;
-  gap:15px;
-}
-.note{
-  position:relative;
-  padding:24px 26px 20px 30px;
-  border-radius:var(--r-l);
-}
-.note::after{
-  content:"";
-  position:absolute;
-  left:0;top:20px;bottom:20px;
-  width:3px;
-  border-radius:0 4px 4px 0;
-  background:linear-gradient(180deg,var(--teal),var(--accent));
-  opacity:.9;
-}
-.note-text{
-  font-family:var(--serif);
-  font-size:15.5px;
-  line-height:1.92;
-  letter-spacing:.005em;
-  margin:0 0 13px;
-  color:var(--text);
-}
-.note-text::before{content:"「"}
-.note-text::after{content:"」"}
-
-.note-meta{
-  display:flex;align-items:center;gap:10px;
-  font-size:12.5px;color:var(--text-3);
-}
-.note-anchor{
-  color:inherit;text-decoration:none;opacity:.45;
-  padding:2px 6px;
-  border-radius:8px;
-  transition:opacity var(--t-fast),color var(--t-fast),background var(--t-fast);
-}
-@media (hover:hover){.note-anchor:hover{opacity:1;color:var(--accent);background:var(--fill)}}
-
-@media (max-width:720px){
-  .notes{padding:0 var(--gutter) 30px}
-  .note{padding:21px 19px 17px 23px;border-radius:21px}
-  .note-text{font-size:15px;line-height:1.88}
-  .note::after{top:17px;bottom:17px}
-}
-</style>
 </head>
 
 <body>
@@ -114,40 +61,66 @@
 
 <div class="page">
 
-  <header class="site-header" style="max-width:var(--narrow)">
-    <p class="eyebrow">随笔</p>
-    <h1 class="page-title">随笔</h1>
-    <p class="page-sub">一两句话的碎片。最新的排在最前面。</p>
-  </header>
+  <article class="article-wrap">
 
-  <!-- 加新随笔：复制一个 <article class="note"> 整块 -->
-  <main class="notes">
-
-    <article class="note card spot" id="note-2024-11-09">
-      <p class="note-text">今天在地铁上看到一个人读纸质书，手指夹在书页之间，像夹着一个秘密。</p>
-      <div class="note-meta">
-        <time datetime="2024-11-09">2024 年 11 月 9 日</time>
-        <a class="note-anchor" href="#note-2024-11-09" aria-label="这则随笔的链接">#</a>
+    <header class="article-head">
+      <p class="eyebrow">文章 · 设计</p>
+      <h1 class="article-title">留白不是空的：说说设计里最容易被忽略的呼吸感</h1>
+      <div class="meta" style="display:flex;align-items:center;gap:9px;flex-wrap:wrap;font-size:12.5px;color:var(--text-2)">
+        <span class="tag">设计</span>
+        <span>·</span>
+        <time datetime="2024-11-12">2024 年 11 月 12 日</time>
+        <span>·</span>
+        <span>8 分钟阅读</span>
       </div>
-    </article>
+    </header>
 
-    <article class="note card spot" id="note-2024-10-21">
-      <p class="note-text">关于「太晚开始」这件事：种一棵树最好的时间是十年前，其次是现在。这句话被说烂了，但每次真的动手时，还是会被它击中。</p>
-      <div class="note-meta">
-        <time datetime="2024-10-21">2024 年 10 月 21 日</time>
-        <a class="note-anchor" href="#note-2024-10-21" aria-label="这则随笔的链接">#</a>
-      </div>
-    </article>
+    <figure class="article-cover">
+      <img src="photos/gallery-01-view.webp" alt="灯下游园" decoding="async" fetchpriority="high">
+    </figure>
 
-    <article class="note card spot" id="note-2024-10-05">
-      <p class="note-text">重新读了一遍《海边的卡夫卡》，发现自己划线的地方和五年前完全不一样了。书没变，是读书的人换了。</p>
-      <div class="note-meta">
-        <time datetime="2024-10-05">2024 年 10 月 5 日</time>
-        <a class="note-anchor" href="#note-2024-10-05" aria-label="这则随笔的链接">#</a>
-      </div>
-    </article>
+    <div class="article-body">
 
-  </main>
+      <p class="lede">去年我重做自己的作品集页面，初版做得很「满」：每个项目三张图、五段描述、一排标签，页面上没有一寸地方是闲着的。发给朋友看，他回了我一句：东西都在，但我不知道先看哪。那天晚上我删掉了页面上三分之一的元素，没有再补任何新东西进去。第二天再打开，信息的清晰度反而提升了。这件事让我认真想了一遍「留白」——它不是还没填满的空地，它本身就是内容的一部分。</p>
+
+      <h2>留白是在替读者做减法</h2>
+      <p>人眼处理页面不是逐字扫描，而是先抓结构。页面上元素越多，建立结构的心智成本就越高。留白的作用，是把「分组」这件事可视化：相关的东西靠得近，不相关的东西离得远，读者不用读一个字，就先知道了页面的骨架。</p>
+      <p>格式塔心理学里管这个叫「接近性原则」——距离近的东西会被知觉为一组。也就是说，留白从来不是消极的「没有」，它和文字、图片一样，是一种积极的排版材料。字距、行距、段距、模块间距，每一处空的地方都在说话。</p>
+
+      <blockquote>
+        <p>留白不是「还没填满」，它是设计者替读者争取来的、可以喘口气的地方。</p>
+      </blockquote>
+
+      <h2>紧张的页面不值得信任</h2>
+      <p>观察一个有趣的现象：廉价传单总是塞得满满当当，而奢侈品广告常常空得奢侈。这不是巧合。密度传递的是心态——急着把所有卖点糊在你脸上的页面，预设的是「你随时会走」；而敢于留白的页面，预设的是「你会留下来」。读者能感知到这种预设，并且下意识地用同样的态度回应。</p>
+      <p>放到个人网站上也是一样。我曾经担心页面太空会显得「没东西」，后来想明白了：如果三句话能说明白的事用了十句，那不是充实，是冗余。留白是一种自信——相信自己的内容值得被慢慢读。</p>
+
+      <hr>
+
+      <h2>三个可以直接用的习惯</h2>
+      <p>这篇不是论文，最后留三个我自己一直在用的具体习惯：</p>
+      <ul>
+        <li><strong>先定间距系统，再排内容。</strong>比如全站只用 8 的倍数：8、16、24、40、64。间距一旦有约束，页面会自然松弛下来，而不是东一点西一点地乱。</li>
+        <li><strong>段间距大于行间距。</strong>很多人反过来做，结果是段落黏在一起。中文长文我习惯行高 1.9 上下，段距再留出将近一行的空。</li>
+        <li><strong>删到不能再删，再删一件。</strong>每个页面定稿前问一遍：哪个元素拿掉之后，剩下的反而更清楚？拿掉它。</li>
+      </ul>
+
+      <p>回到最初那个作品集页面。改完之后的版本，项目图只留了一张，描述只剩两句话，页面两侧是大片的空。但朋友的反馈从「不知道先看哪」变成了「看得很舒服」。所谓的呼吸感，大概就是这样：页面不催你，你反而愿意多待一会儿。</p>
+
+    </div>
+
+    <nav class="article-nav" aria-label="文章导航">
+      <a class="anav" href="articles.html">
+        <span>← 返回</span>
+        <b>文章列表</b>
+      </a>
+      <a class="anav anav--next" href="article-why-blog.html">
+        <span>下一篇 →</span>
+        <b>我为什么重新开始写博客</b>
+      </a>
+    </nav>
+
+  </article>
 
   <footer class="site-footer" style="max-width:var(--narrow)">
     <span class="seal" aria-hidden="true">言一</span>
@@ -163,7 +136,7 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10.6 12 4l8 6.6V19a1.6 1.6 0 0 1-1.6 1.6h-3.6v-5.4H9.2v5.4H5.6A1.6 1.6 0 0 1 4 19z"/></svg>
       <span>首页</span>
     </a>
-    <a class="tab" href="articles.html" data-match="articles.html">
+    <a class="tab" href="articles.html" data-match="articles.html article-whitespace.html article-why-blog.html">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3.6h6.6L18 8v12a1.4 1.4 0 0 1-1.4 1.4H7A1.4 1.4 0 0 1 5.6 20V5A1.4 1.4 0 0 1 7 3.6z"/><path d="M13.2 3.6V8H18M8.6 12.4h6.8M8.6 15.8h4.4"/></svg>
       <span>文章</span>
     </a>
@@ -187,11 +160,6 @@
 </nav>
 
 <script src="assets/app.js" defer></script>
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-  YY.animate('.note', 80);
-});
-</script>
 
 </body>
 </html>

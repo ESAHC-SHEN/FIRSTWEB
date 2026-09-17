@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#F2F2F7" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
-<title>随笔 · 言一</title>
+<title>我为什么重新开始写博客 · 言一</title>
+<meta name="description" content="写给自己看的时候，我才敢承认很多事我其实没想明白。">
 
 <script>
 (function(){
@@ -22,60 +23,6 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/base.css">
-
-<style>
-.notes{
-  max-width:var(--narrow);
-  margin:0 auto;
-  padding:0 var(--gutter) 40px;
-  display:flex;
-  flex-direction:column;
-  gap:15px;
-}
-.note{
-  position:relative;
-  padding:24px 26px 20px 30px;
-  border-radius:var(--r-l);
-}
-.note::after{
-  content:"";
-  position:absolute;
-  left:0;top:20px;bottom:20px;
-  width:3px;
-  border-radius:0 4px 4px 0;
-  background:linear-gradient(180deg,var(--teal),var(--accent));
-  opacity:.9;
-}
-.note-text{
-  font-family:var(--serif);
-  font-size:15.5px;
-  line-height:1.92;
-  letter-spacing:.005em;
-  margin:0 0 13px;
-  color:var(--text);
-}
-.note-text::before{content:"「"}
-.note-text::after{content:"」"}
-
-.note-meta{
-  display:flex;align-items:center;gap:10px;
-  font-size:12.5px;color:var(--text-3);
-}
-.note-anchor{
-  color:inherit;text-decoration:none;opacity:.45;
-  padding:2px 6px;
-  border-radius:8px;
-  transition:opacity var(--t-fast),color var(--t-fast),background var(--t-fast);
-}
-@media (hover:hover){.note-anchor:hover{opacity:1;color:var(--accent);background:var(--fill)}}
-
-@media (max-width:720px){
-  .notes{padding:0 var(--gutter) 30px}
-  .note{padding:21px 19px 17px 23px;border-radius:21px}
-  .note-text{font-size:15px;line-height:1.88}
-  .note::after{top:17px;bottom:17px}
-}
-</style>
 </head>
 
 <body>
@@ -114,40 +61,66 @@
 
 <div class="page">
 
-  <header class="site-header" style="max-width:var(--narrow)">
-    <p class="eyebrow">随笔</p>
-    <h1 class="page-title">随笔</h1>
-    <p class="page-sub">一两句话的碎片。最新的排在最前面。</p>
-  </header>
+  <article class="article-wrap">
 
-  <!-- 加新随笔：复制一个 <article class="note"> 整块 -->
-  <main class="notes">
-
-    <article class="note card spot" id="note-2024-11-09">
-      <p class="note-text">今天在地铁上看到一个人读纸质书，手指夹在书页之间，像夹着一个秘密。</p>
-      <div class="note-meta">
-        <time datetime="2024-11-09">2024 年 11 月 9 日</time>
-        <a class="note-anchor" href="#note-2024-11-09" aria-label="这则随笔的链接">#</a>
+    <header class="article-head">
+      <p class="eyebrow">文章 · 随笔式技术</p>
+      <h1 class="article-title">我为什么重新开始写博客</h1>
+      <div class="meta" style="display:flex;align-items:center;gap:9px;flex-wrap:wrap;font-size:12.5px;color:var(--text-2)">
+        <span class="tag">随笔式技术</span>
+        <span>·</span>
+        <time datetime="2024-10-28">2024 年 10 月 28 日</time>
+        <span>·</span>
+        <span>6 分钟阅读</span>
       </div>
-    </article>
+    </header>
 
-    <article class="note card spot" id="note-2024-10-21">
-      <p class="note-text">关于「太晚开始」这件事：种一棵树最好的时间是十年前，其次是现在。这句话被说烂了，但每次真的动手时，还是会被它击中。</p>
-      <div class="note-meta">
-        <time datetime="2024-10-21">2024 年 10 月 21 日</time>
-        <a class="note-anchor" href="#note-2024-10-21" aria-label="这则随笔的链接">#</a>
-      </div>
-    </article>
+    <figure class="article-cover">
+      <img src="photos/gallery-05-view.webp" alt="海边的黄昏" decoding="async" fetchpriority="high">
+    </figure>
 
-    <article class="note card spot" id="note-2024-10-05">
-      <p class="note-text">重新读了一遍《海边的卡夫卡》，发现自己划线的地方和五年前完全不一样了。书没变，是读书的人换了。</p>
-      <div class="note-meta">
-        <time datetime="2024-10-05">2024 年 10 月 5 日</time>
-        <a class="note-anchor" href="#note-2024-10-05" aria-label="这则随笔的链接">#</a>
-      </div>
-    </article>
+    <div class="article-body">
 
-  </main>
+      <p class="lede">我的上一个博客停在三年前。停更的理由很体面：忙。真实的理由没那么体面——我每次打开编辑器，脑子里先出现的不是想写的东西，而是想象中的读者。这句话会不会显得外行？这个观点别人是不是早就说过了？发出去没人看怎么办？想完这一圈，文档还是空白的，热情已经用完了。</p>
+
+      <h2>写给别人看，我会不自觉地表演</h2>
+      <p>社交平台的写作逻辑是表演逻辑。标题要有钩子，观点要站队，情绪要饱满，最好再留一个能吵起来的话头。这套逻辑本身没有对错，它确实能带来传播。但它有个副作用：写着写着，你会开始挑那些「适合被传播」的想法来写，而那些真正困惑你的、暧昧的、还没想清楚的东西，被默默过滤掉了。</p>
+      <p>问题是，恰恰是那些没想明白的东西最值得写。想明白的事写下来只是存档，没想明白的事写下来才是思考。</p>
+
+      <blockquote>
+        <p>写给自己看的时候，我才敢承认很多事我其实没想明白——而这恰恰是写作最有用的部分。</p>
+      </blockquote>
+
+      <h2>写作是一种慢的思考</h2>
+      <p>脑子里的想法是有弹性的，它允许模糊、允许自相矛盾、允许「大概就是这样吧」。而文字是刚性的。当一个想法被迫落到纸上，它必须交代清楚：前提是什么，推理怎么走，结论到底成不成立。很多自以为想通的事，都是在这个环节现出原形的。</p>
+      <p>所以现在我给自己定的规矩是：博客的第一读者是三个月后的我。写的时候不问「别人爱不爱看」，只问「三个月后的我看到这篇，会不会觉得当时想得挺清楚」。这个标准意外地高，但它筛掉的全是表演，留下的全是真问题。</p>
+
+      <hr>
+
+      <h2>顺便说几句这个网站</h2>
+      <p>这次没有用任何博客程序，就是一堆静态 HTML。有人问为什么不直接用现成的平台，我的回答是：</p>
+      <ul>
+        <li><strong>它不会倒闭。</strong>静态文件放在哪里都能活，十年后大概率还能打开。</li>
+        <li><strong>它没有仪表盘。</strong>没有阅读量曲线，没有粉丝数，也就没有什么可焦虑的。</li>
+        <li><strong>它足够慢。</strong>每发一篇文章都要手写一点 HTML，这个「麻烦」是个过滤器——不值得这点麻烦的话，多半也不值得写。</li>
+      </ul>
+
+      <p>如果你也有一个停更多年的博客，我的建议是：别等想清楚了再写，写到第三段，你自然就清楚了。</p>
+
+    </div>
+
+    <nav class="article-nav" aria-label="文章导航">
+      <a class="anav" href="article-whitespace.html">
+        <span>← 上一篇</span>
+        <b>留白不是空的：说说设计里最容易被忽略的呼吸感</b>
+      </a>
+      <a class="anav anav--next" href="articles.html">
+        <span>返回 →</span>
+        <b>文章列表</b>
+      </a>
+    </nav>
+
+  </article>
 
   <footer class="site-footer" style="max-width:var(--narrow)">
     <span class="seal" aria-hidden="true">言一</span>
@@ -163,7 +136,7 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10.6 12 4l8 6.6V19a1.6 1.6 0 0 1-1.6 1.6h-3.6v-5.4H9.2v5.4H5.6A1.6 1.6 0 0 1 4 19z"/></svg>
       <span>首页</span>
     </a>
-    <a class="tab" href="articles.html" data-match="articles.html">
+    <a class="tab" href="articles.html" data-match="articles.html article-whitespace.html article-why-blog.html">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3.6h6.6L18 8v12a1.4 1.4 0 0 1-1.4 1.4H7A1.4 1.4 0 0 1 5.6 20V5A1.4 1.4 0 0 1 7 3.6z"/><path d="M13.2 3.6V8H18M8.6 12.4h6.8M8.6 15.8h4.4"/></svg>
       <span>文章</span>
     </a>
@@ -187,11 +160,6 @@
 </nav>
 
 <script src="assets/app.js" defer></script>
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-  YY.animate('.note', 80);
-});
-</script>
 
 </body>
 </html>

@@ -1,12 +1,13 @@
 /* =========================================================
    言一 · 全站脚本
    主题 / 导航 / 揭示动画 / 浮层 / 浏览量 / 版本号
-   version beta 0.20
+   墨点涟漪 / Logo 彩带彩蛋
+   version beta 0.30
    ========================================================= */
 window.YY = (function () {
   'use strict';
 
-  const VERSION = 'beta 0.20';
+  const VERSION = 'beta 0.30';
   const root = document.documentElement;
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
@@ -419,6 +420,68 @@ window.YY = (function () {
     });
   }
 
+  /* ---------- 11. 墨点涟漪（点击空白处留下一枚小墨点） ---------- */
+  function initInk() {
+    if (reduceMotion.matches) return;
+    if (!window.matchMedia('(hover:hover) and (pointer:fine)').matches) return;
+    let last = 0;
+    document.addEventListener('pointerdown', function (e) {
+      if (e.button !== 0) return;
+      const now = performance.now();
+      if (now - last < 90) return; // 连续点击时别太密
+      last = now;
+      const dot = document.createElement('i');
+      dot.className = 'ink';
+      dot.style.left = e.clientX + 'px';
+      dot.style.top = e.clientY + 'px';
+      document.body.appendChild(dot);
+      dot.addEventListener('animationend', function () { dot.remove(); }, { once: true });
+      setTimeout(function () { dot.remove(); }, 900);
+    }, { passive: true });
+  }
+
+  /* ---------- 12. Logo 彩蛋：2 秒内连点 5 次「言」放一把彩带 ---------- */
+  function confettiBurst(x, y) {
+    if (reduceMotion.matches) return;
+    const colors = ['#0A84FF', '#40C8E0', '#BF5AF2', '#FF375F', '#FF9F0A', '#30D158', '#FFD60A'];
+    for (let i = 0; i < 30; i++) {
+      const p = document.createElement('i');
+      p.className = 'confetti';
+      p.style.left = x + 'px';
+      p.style.top = y + 'px';
+      p.style.background = colors[i % colors.length];
+      document.body.appendChild(p);
+      const ang = Math.random() * Math.PI * 2;
+      const dist = 70 + Math.random() * 150;
+      const dx = Math.cos(ang) * dist;
+      const dy = Math.sin(ang) * dist * 0.75 - 46;
+      const rot = (Math.random() - 0.5) * 640;
+      const dur = 750 + Math.random() * 550;
+      p.animate([
+        { transform: 'translate(-50%,-50%) rotate(0deg)', opacity: 1 },
+        { transform: 'translate(calc(-50% + ' + dx + 'px), calc(-50% + ' + dy + 'px)) rotate(' + rot + 'deg)', opacity: 0 }
+      ], { duration: dur, easing: 'cubic-bezier(.16,.84,.36,1)' }).onfinish = function () { p.remove(); };
+      setTimeout(function () { p.remove(); }, dur + 120);
+    }
+  }
+
+  function initBrandEgg() {
+    const mark = $('.brand-mark');
+    if (!mark) return;
+    let clicks = [];
+    mark.addEventListener('click', function () {
+      const now = performance.now();
+      clicks = clicks.filter(function (t) { return now - t < 2000; });
+      clicks.push(now);
+      if (clicks.length >= 5) {
+        clicks = [];
+        const r = mark.getBoundingClientRect();
+        confettiBurst(r.left + r.width / 2, r.top + r.height / 2);
+        toast('发现彩蛋：言一出没', 'ok');
+      }
+    });
+  }
+
   /* ---------- 启动 ---------- */
   function boot() {
     initTheme();
@@ -428,6 +491,8 @@ window.YY = (function () {
     initPageviews();
     initMisc();
     initPageTransition();
+    initInk();
+    initBrandEgg();
   }
 
   if (document.readyState === 'loading') {
@@ -449,6 +514,7 @@ window.YY = (function () {
     copy: copy,
     raf: raf,
     lockScroll: lockScroll,
+    confettiBurst: confettiBurst,
     reduceMotion: reduceMotion
   };
 })();
