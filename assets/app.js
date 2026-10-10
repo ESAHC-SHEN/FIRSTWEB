@@ -2,12 +2,12 @@
    言一 · 全站脚本
    主题 / 导航 / 揭示动画 / 浮层 / 浏览量 / 版本号
    墨点涟漪 / Logo 彩带彩蛋 / 节气主题色
-   version beta 0.40
+   version beta 0.41
    ========================================================= */
 window.YY = (function () {
   'use strict';
 
-  const VERSION = 'beta 0.40';
+  const VERSION = 'beta 0.41';
   const root = document.documentElement;
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
@@ -480,6 +480,98 @@ window.YY = (function () {
         toast('发现彩蛋：言一出没', 'ok');
       }
     });
+  }
+
+  /* ---------- 13. 节气主题色：全站色调随二十四节气流转 ----------
+     与 calendar.js 同源的寿星公式，向前最多回溯 20 天找到「当前节气」，
+     把对应传统色写入 --accent，并把光晕三色（--tone-c1/2/3）整组换成
+     该色的邻近色（内联样式，深浅主题同时生效）。
+     色分八候：春青、春海棠、夏朱、夏橙、秋金、秋赭、冬黛、冬靛。 */
+  const TONE_TERMS = ['小寒','大寒','立春','雨水','惊蛰','春分','清明','谷雨',
+                      '立夏','小满','芒种','夏至','小暑','大暑','立秋','处暑',
+                      '白露','秋分','寒露','霜降','立冬','小雪','大雪','冬至'];
+  const TONE_C = [5.4055,20.12,3.87,18.73,5.63,20.646,4.81,20.1,
+                  5.52,21.04,5.678,21.37,7.108,22.83,7.5,23.13,
+                  7.646,23.042,8.318,23.438,7.438,22.36,7.18,21.94];
+  // 每个节气一色（相邻节气同候同色，随季节渐变）
+  const TONE_COLORS = [
+    '#4A6FA5','#4A6FA5',           // 小寒 大寒 · 冬黛
+    '#37996B','#37996B','#37996B', // 立春 雨水 惊蛰 · 春青
+    '#C95D8C','#C95D8C','#C95D8C', // 春分 清明 谷雨 · 海棠
+    '#CF4A3C','#CF4A3C','#CF4A3C', // 立夏 小满 芒种 · 夏朱
+    '#DE7A35','#DE7A35','#DE7A35', // 夏至 小暑 大暑 · 夏橙
+    '#B8862B','#B8862B','#B8862B', // 立秋 处暑 白露 · 秋金
+    '#A65A38','#A65A38','#A65A38', // 秋分 寒露 霜降 · 秋赭
+    '#5560A8','#5560A8','#5560A8','#5560A8' // 立冬 小雪 大雪 冬至 · 冬靛
+  ];
+
+  function toneTermDay(year, n) {
+    const yy = year % 100;
+    return Math.floor(yy * 0.2422 + TONE_C[n]) - Math.floor(yy / 4);
+  }
+
+  function currentTerm() {
+    const now = new Date();
+    for (let k = 0; k <= 20; k++) {
+      const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - k);
+      const y = d.getFullYear(), m = d.getMonth(), day = d.getDate();
+      if (day === toneTermDay(y, m * 2))     return { index: m * 2,     today: k === 0 };
+      if (day === toneTermDay(y, m * 2 + 1)) return { index: m * 2 + 1, today: k === 0 };
+    }
+    return null;
+  }
+
+  const season = (function () {
+    const hit = currentTerm();
+    if (!hit) return null;
+    return { term: TONE_TERMS[hit.index], color: TONE_COLORS[hit.index], isTermDay: hit.today };
+  })();
+
+  /* 色相工具：把节气色旋转 ±30~40° 得到光晕伴色 */
+  function hexToHsl(hex) {
+    const r = parseInt(hex.slice(1, 3), 16) / 255;
+    const g = parseInt(hex.slice(3, 5), 16) / 255;
+    const b = parseInt(hex.slice(5, 7), 16) / 255;
+    const max = Math.max(r, g, b), min = Math.min(r, g, b);
+    let h = 0;
+    const l = (max + min) / 2;
+    const d = max - min;
+    const s = d === 0 ? 0 : d / (1 - Math.abs(2 * l - 1));
+    if (d !== 0) {
+      if (max === r) h = 60 * (((g - b) / d) % 6);
+      else if (max === g) h = 60 * ((b - r) / d + 2);
+      else h = 60 * ((r - g) / d + 4);
+    }
+    return { h: (h + 360) % 360, s: s, l: l };
+  }
+
+  function hslToRgbTriplet(h, s, l) {
+    const c = (1 - Math.abs(2 * l - 1)) * s;
+    const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
+    const m = l - c / 2;
+    let r, g, b;
+    if (h < 60)       { r = c; g = x; b = 0; }
+    else if (h < 120) { r = x; g = c; b = 0; }
+    else if (h < 180) { r = 0; g = c; b = x; }
+    else if (h < 240) { r = 0; g = x; b = c; }
+    else if (h < 300) { r = x; g = 0; b = c; }
+    else              { r = c; g = 0; b = x; }
+    return Math.round((r + m) * 255) + ',' + Math.round((g + m) * 255) + ',' + Math.round((b + m) * 255);
+  }
+
+  function toneTriplet(hex, hueShift, lightBoost) {
+    const t = hexToHsl(hex);
+    return hslToRgbTriplet((t.h + hueShift + 360) % 360, Math.min(1, t.s * 1.02), Math.min(.72, t.l + (lightBoost || 0)));
+  }
+
+  function initSeasonTone() {
+    if (!season) return;
+    root.style.setProperty('--accent', season.color);
+    // 光晕三色换成节气色的邻近色组（UI 辅助色 --accent-2/3 保持系统色，避免花）
+    root.style.setProperty('--tone-c1', toneTriplet(season.color, 0, 0));
+    root.style.setProperty('--tone-c2', toneTriplet(season.color, 38, .04));
+    root.style.setProperty('--tone-c3', toneTriplet(season.color, -32, .06));
+    root.dataset.term = season.term;
   }
 
   /* ---------- 启动 ---------- */

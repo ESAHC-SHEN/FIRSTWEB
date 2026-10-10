@@ -1,7 +1,7 @@
 /* =========================================================
    言一 · 共用样式
    Liquid Glass 设计系统（Apple iOS 27 风格）
-   version beta 0.40
+   version beta 0.41
    ---------------------------------------------------------
    1. 设计令牌
    2. 基础与背景氛围
@@ -35,6 +35,12 @@
   --accent-2:var(--teal);
   --accent-3:var(--purple);
   --festival:#FF3B30;
+
+  /* 背景光晕三色（RGB 三元组，透明度在使用处按主题给出；
+     节气主题色生效时由 app.js 整组改写） */
+  --tone-c1:10,132,255;
+  --tone-c2:191,90,242;
+  --tone-c3:64,200,224;
 
   /* —— 底色 / 材质 —— */
   --bg:#F2F2F7;
@@ -178,23 +184,23 @@ body{
 }
 .aura i:nth-child(1){
   width:46vmax;height:46vmax;left:-6vmax;top:-8vmax;
-  background:radial-gradient(circle at 35% 35%, rgba(10,132,255,.55), transparent 68%);
+  background:radial-gradient(circle at 35% 35%, rgba(var(--tone-c1),.55), transparent 68%);
   animation:auraA 26s var(--ease-in-out) infinite alternate;
 }
 .aura i:nth-child(2){
   width:40vmax;height:40vmax;right:-8vmax;top:-4vmax;
-  background:radial-gradient(circle at 60% 40%, rgba(191,90,242,.42), transparent 68%);
+  background:radial-gradient(circle at 60% 40%, rgba(var(--tone-c2),.42), transparent 68%);
   animation:auraB 32s var(--ease-in-out) infinite alternate;
 }
 .aura i:nth-child(3){
   width:52vmax;height:52vmax;left:22%;bottom:-26vmax;
-  background:radial-gradient(circle at 50% 50%, rgba(64,200,224,.38), transparent 70%);
+  background:radial-gradient(circle at 50% 50%, rgba(var(--tone-c3),.38), transparent 70%);
   animation:auraC 38s var(--ease-in-out) infinite alternate;
 }
 [data-theme="dark"] .aura i{opacity:.42;filter:blur(70px)}
-[data-theme="dark"] .aura i:nth-child(1){background:radial-gradient(circle at 35% 35%, rgba(10,132,255,.42), transparent 68%)}
-[data-theme="dark"] .aura i:nth-child(2){background:radial-gradient(circle at 60% 40%, rgba(191,90,242,.34), transparent 68%)}
-[data-theme="dark"] .aura i:nth-child(3){background:radial-gradient(circle at 50% 50%, rgba(64,200,224,.24), transparent 70%)}
+[data-theme="dark"] .aura i:nth-child(1){background:radial-gradient(circle at 35% 35%, rgba(var(--tone-c1),.42), transparent 68%)}
+[data-theme="dark"] .aura i:nth-child(2){background:radial-gradient(circle at 60% 40%, rgba(var(--tone-c2),.34), transparent 68%)}
+[data-theme="dark"] .aura i:nth-child(3){background:radial-gradient(circle at 50% 50%, rgba(var(--tone-c3),.24), transparent 70%)}
 
 /* 细腻颗粒，让大面积渐变更有质感 */
 .aura::after{

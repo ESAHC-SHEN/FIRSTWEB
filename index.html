@@ -100,6 +100,43 @@
 .socials .social-text{cursor:pointer;font-variant-numeric:tabular-nums}
 @media (hover:hover){.socials .social-text:hover{color:var(--accent);border-color:color-mix(in srgb,var(--accent) 40%,transparent)}}
 
+/* ---------- 站务公告条 ---------- */
+.notice{
+  max-width:var(--maxw);
+  margin:0 auto;
+  padding:18px var(--gutter) 0;
+}
+.notice-in{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:13px 18px;
+  border-radius:var(--r-l);
+  background:color-mix(in srgb, var(--accent) 9%, var(--glass));
+  -webkit-backdrop-filter:var(--blur);
+  backdrop-filter:var(--blur);
+  border:1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+  box-shadow:var(--sh-1), inset 0 1px 0 var(--sheen);
+}
+.notice-tag{
+  flex:0 0 auto;
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:.12em;
+  color:var(--on-accent);
+  background:var(--accent);
+  border-radius:var(--r-full);
+  padding:3px 10px 4px;
+}
+.notice-text{
+  flex:1 1 auto;
+  min-width:0;
+  margin:0;
+  font-size:14px;
+  line-height:1.7;
+  color:var(--text);
+}
+
 /* ---------- 今天 / 天气 ---------- */
 .modules{
   max-width:var(--maxw);
@@ -338,6 +375,7 @@
   .modules{grid-template-columns:1fr}
 }
 @media (max-width:720px){
+  .notice{padding:14px var(--gutter) 0}
   .hero{padding:24px var(--gutter) 20px}
   .profile{gap:16px;padding:18px;align-items:flex-start;border-radius:26px}
   .avatar{width:66px;height:66px}
@@ -390,16 +428,23 @@
 
 <div class="page">
 
+  <aside class="notice" role="note">
+    <div class="notice-in">
+      <span class="notice-tag">站务</span>
+      <p class="notice-text">站长去准备竞赛了捏，网站更新告一段落。</p>
+    </div>
+  </aside>
+
   <header class="hero">
     <div class="profile spot">
       <img class="avatar" src="avatar.png" alt="言一的头像" width="88" height="88">
       <div class="profile-info">
         <h1>言一</h1>
-        <p class="bio">设计师，偶尔写代码。在这里放我的长文、碎片，和拍到的光。</p>
+        <p class="bio">苦逼大三会计学生一枚，偶尔写代码。在这里放我的长文、碎片，和拍到的光。</p>
         <nav class="socials">
           <a href="https://github.com/ESAHC-SHEN" target="_blank" rel="noopener noreferrer">GitHub</a>
           <a href="https://space.bilibili.com/349922207?spm_id_from=333.1007.0.0" target="_blank" rel="noopener noreferrer">B 站</a>
-          <span class="social-text" data-copy="247556861@qq.com" title="点击复制邮箱">247556861@qq.com</span>
+          <span class="social-text" data-copy="chasexie@foxmail.com" title="点击复制邮箱">chasexie@foxmail.com</span>
         </nav>
       </div>
     </div>
@@ -516,7 +561,7 @@
     </div>
     <span class="seal" aria-hidden="true">言一</span>
     <p class="foot-line">© 2026 言一 · <a class="foot-link" href="about.html">关于</a></p>
-    <p class="foot-ver">version <span id="siteVersion">beta 0.40</span></p>
+    <p class="foot-ver">version <span id="siteVersion">beta 0.41</span></p>
   </footer>
 
 </div>
@@ -574,6 +619,7 @@ document.addEventListener('DOMContentLoaded', function () {
   linkify('modToday', 'calendar.html');
   linkify('modWeather', 'weather.html');
 
+  YY.animate('.notice .notice-in', 60);
   YY.animate('.modules .mod', 90);
   YY.animate('.daily-quote .dq', 120);
   YY.animate('.columns .col', 80);
@@ -583,7 +629,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var el = document.getElementById('typer');
     if (!el || YY.reduceMotion.matches) return;
     var lines = [
-      '设计师，偶尔写代码。',
+      '苦逼大三会计学生一枚，偶尔写代码。',
       '在这里放我的长文、碎片，和拍到的光。',
       '也在备考的路上，慢慢来。',
       '今天也要好好过。'

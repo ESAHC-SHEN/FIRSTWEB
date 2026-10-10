@@ -2,7 +2,7 @@
 
 esahc-shen.github.io/FIRSTWEB
 
-纯 HTML / CSS / 原生 JavaScript，无框架、无构建，GitHub Pages 托管。当前版本 **beta 0.40**。
+纯 HTML / CSS / 原生 JavaScript，无框架、无构建，GitHub Pages 托管。当前版本 **beta 0.41**。
 
 ## 页面
 
