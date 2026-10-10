@@ -2,7 +2,7 @@
    言一 · 学习页
    番茄钟 / 待办清单 / 倒数日
    数据全部保存在 localStorage
-   version beta 0.41
+   version beta 0.42
    ========================================================= */
 (function () {
   'use strict';

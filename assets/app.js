@@ -2,12 +2,12 @@
    言一 · 全站脚本
    主题 / 导航 / 揭示动画 / 浮层 / 浏览量 / 版本号
    墨点涟漪 / Logo 彩带彩蛋 / 节气主题色
-   version beta 0.41
+   version beta 0.42
    ========================================================= */
 window.YY = (function () {
   'use strict';
 
-  const VERSION = 'beta 0.41';
+  const VERSION = 'beta 0.42';
   const root = document.documentElement;
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
