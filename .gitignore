@@ -1,0 +1,6 @@
+# WorkBuddy / agent 工作区（不上传）
+.workbuddy/
+
+# 系统杂物
+.DS_Store
+Thumbs.db
