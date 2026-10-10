@@ -6,6 +6,14 @@
 <meta name="theme-color" content="#F2F2F7" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
 <title>文章 · 言一</title>
+<meta name="description" content="言一的长文：设计、代码，以及那些只有写下来才想明白的事。">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="言一">
+<meta property="og:title" content="文章 · 言一">
+<meta property="og:description" content="言一的长文：设计、代码，以及那些只有写下来才想明白的事。">
+<meta property="og:url" content="https://esahc-shen.github.io/FIRSTWEB/articles.html">
+<meta property="og:image" content="https://esahc-shen.github.io/FIRSTWEB/photos/gallery-01-view.webp">
+<meta name="twitter:card" content="summary_large_image">
 
 <script>
 (function(){
@@ -135,6 +143,7 @@
       <a href="gallery.html" data-match="gallery.html">相片馆</a>
       <a href="study.html" data-match="study.html">学习</a>
       <a href="play.html" data-match="play.html">娱乐</a>
+      <a href="about.html" data-match="about.html">关于</a>
     </nav>
     <div class="nav-actions">
       <button class="icon-btn theme-toggle" id="themeToggle" aria-label="切换深浅色主题">
@@ -159,8 +168,10 @@
     <p class="page-sub">长一点的思考。最新的排在最前面。</p>
   </header>
 
-  <!-- 加新文章：复制一个 <a class="post"> 整块 -->
+  <!-- 归档：按年份分组。加新文章：复制一个 <a class="post"> 整块，放到对应年份标题下（没有就新建一行 arch-year） -->
   <main class="posts">
+
+    <h2 class="arch-year"><span>2024</span><i>2 篇</i></h2>
 
     <a class="post card spot" href="article-whitespace.html">
       <span class="post-cover">
@@ -210,8 +221,8 @@
 
   <footer class="site-footer">
     <span class="seal" aria-hidden="true">言一</span>
-    <p class="foot-line">© 2026 言一</p>
-    <p class="foot-ver">version <span id="siteVersion">beta 0.30</span></p>
+    <p class="foot-line">© 2026 言一 · <a class="foot-link" href="about.html">关于</a></p>
+    <p class="foot-ver">version <span id="siteVersion">beta 0.40</span></p>
   </footer>
 
 </div>

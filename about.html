@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#F2F2F7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+<title>关于 · 言一</title>
+<meta name="description" content="关于言一，关于这个站，以及常来往的友邻。">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="言一">
+<meta property="og:title" content="关于 · 言一">
+<meta property="og:description" content="关于言一，关于这个站，以及常来往的友邻。">
+<meta property="og:url" content="https://esahc-shen.github.io/FIRSTWEB/about.html">
+<meta property="og:image" content="https://esahc-shen.github.io/FIRSTWEB/photos/gallery-01-view.webp">
+<meta name="twitter:card" content="summary_large_image">
+
+<script>
+(function(){
+  document.documentElement.classList.add('js');
+  try{
+    var t = localStorage.getItem('theme');
+    if(!t && window.matchMedia('(prefers-color-scheme: dark)').matches) t = 'dark';
+    if(t) document.documentElement.dataset.theme = t;
+  }catch(e){}
+})();
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/base.css">
+
+<style>
+.about{
+  max-width:var(--narrow);
+  margin:0 auto;
+  padding:0 var(--gutter) 46px;
+  display:flex;
+  flex-direction:column;
+  gap:18px;
+}
+.ab-card{
+  padding:26px 26px 22px;
+  border-radius:var(--r-xl);
+}
+.ab-card h2{
+  font-family:var(--serif);
+  font-size:19px;
+  font-weight:600;
+  margin:0 0 13px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.ab-card h2::before{
+  content:"";
+  width:8px;height:8px;
+  border-radius:3px;
+  background:var(--accent);
+  box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 16%,transparent);
+}
+.ab-card p{
+  margin:0 0 12px;
+  font-size:14.5px;
+  line-height:1.9;
+  color:var(--text-2);
+}
+.ab-card p:last-child{margin-bottom:0}
+.ab-card p b{color:var(--text);font-weight:600}
+
+/* 关于我：头像行 */
+.ab-me{display:flex;gap:20px;align-items:center;margin-bottom:16px}
+.ab-avatar{
+  width:74px;height:74px;
+  border-radius:50%;
+  object-fit:cover;
+  flex-shrink:0;
+  background:var(--fill);
+  box-shadow:0 0 0 3px var(--glass-strong), 0 0 0 4px var(--line);
+}
+.ab-me-name{
+  font-family:var(--serif);
+  font-size:26px;font-weight:700;
+  margin:0 0 5px;
+  letter-spacing:-.01em;
+}
+.ab-me-tag{margin:0;font-size:13.5px;color:var(--text-2)}
+
+/* 节气色小卡 */
+.ab-tone{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  margin-top:16px;
+  padding:14px 16px;
+  border-radius:var(--r-l);
+  background:var(--fill);
+  border:1px solid var(--line);
+}
+.ab-tone-dot{
+  width:34px;height:34px;
+  border-radius:12px;
+  flex-shrink:0;
+  background:var(--accent);
+  box-shadow:0 8px 18px -8px color-mix(in srgb,var(--accent) 80%,transparent), inset 0 1px 0 rgba(255,255,255,.4);
+}
+.ab-tone b{display:block;font-size:14px;font-weight:600;margin-bottom:2px}
+.ab-tone span{font-size:12.5px;color:var(--text-2);font-variant-numeric:tabular-nums}
+
+/* 编年史 */
+.ab-line{list-style:none;margin:0;padding:0}
+.ab-line li{
+  position:relative;
+  padding:0 0 18px 26px;
+  border-left:1px solid var(--line-strong);
+}
+.ab-line li:last-child{padding-bottom:2px}
+.ab-line li::before{
+  content:"";
+  position:absolute;
+  left:-5px;top:6px;
+  width:9px;height:9px;
+  border-radius:50%;
+  background:var(--surface);
+  border:2px solid var(--accent);
+}
+.ab-line .v{
+  font-size:12px;
+  font-weight:600;
+  letter-spacing:.1em;
+  color:var(--accent);
+  font-variant-numeric:tabular-nums;
+}
+.ab-line .t{font-size:14px;line-height:1.75;color:var(--text-2);margin-top:2px}
+.ab-line .t b{color:var(--text);font-weight:600}
+
+/* 友邻 */
+.ab-friends{display:grid;gap:12px}
+.friend{
+  display:flex;
+  align-items:center;
+  gap:15px;
+  padding:15px 17px;
+  border-radius:var(--r-l);
+  background:var(--glass-thin);
+  border:1px solid var(--line);
+  text-decoration:none;
+  color:inherit;
+  transition:transform .4s var(--spring-soft), border-color var(--t-fast), background var(--t-fast);
+}
+@media (hover:hover){
+  .friend:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--accent) 35%,transparent);background:var(--glass)}
+}
+.friend-glyph{
+  width:44px;height:44px;
+  border-radius:14px;
+  display:grid;place-items:center;
+  flex-shrink:0;
+  font-family:var(--serif);
+  font-size:19px;font-weight:700;
+  color:#fff;
+  background:linear-gradient(150deg,var(--fc,#BF5AF2),color-mix(in srgb,var(--fc,#BF5AF2) 55%,#000));
+  box-shadow:0 10px 20px -10px color-mix(in srgb,var(--fc,#BF5AF2) 85%,transparent), inset 0 1px 0 rgba(255,255,255,.4);
+}
+.friend-info{flex:1 1 auto;min-width:0}
+.friend-info b{display:block;font-size:15px;font-weight:600;margin-bottom:2px}
+.friend-info span{
+  display:block;
+  font-size:12.5px;color:var(--text-2);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.friend-arrow{color:var(--text-3);font-size:15px;flex-shrink:0;transition:transform .3s var(--spring),color var(--t-fast)}
+@media (hover:hover){.friend:hover .friend-arrow{transform:translate(2px,-2px);color:var(--accent)}}
+
+/* 联系 */
+.ab-socials{display:flex;gap:8px;flex-wrap:wrap}
+.ab-socials a,.ab-socials .ab-mail{
+  display:inline-flex;align-items:center;gap:5px;
+  font-size:13px;font-weight:500;
+  color:var(--text-2);
+  text-decoration:none;
+  padding:7px 14px;
+  border-radius:var(--r-full);
+  border:1px solid var(--line);
+  background:var(--glass-thin);
+  cursor:pointer;
+  transition:color var(--t-fast),border-color var(--t-fast),transform var(--t-fast) var(--spring);
+}
+@media (hover:hover){
+  .ab-socials a:hover,.ab-socials .ab-mail:hover{color:var(--accent);border-color:color-mix(in srgb,var(--accent) 40%,transparent);transform:translateY(-1.5px)}
+}
+
+@media (max-width:720px){
+  .ab-card{padding:20px 19px 18px;border-radius:26px}
+}
+</style>
+</head>
+
+<body>
+
+<div class="aura" aria-hidden="true"><i></i><i></i><i></i></div>
+
+<header class="topnav" id="topnav">
+  <div class="topnav-inner">
+    <a class="brand" href="index.html">
+      <span class="brand-mark">言</span>
+      <span class="brand-text"><b>言一</b><i>Yán Yī</i></span>
+    </a>
+    <nav class="nav-links">
+      <span class="nav-pill" aria-hidden="true"></span>
+      <a href="index.html" data-match="index.html calendar.html weather.html">首页</a>
+      <a href="articles.html" data-match="articles.html article-whitespace.html article-why-blog.html">文章</a>
+      <a href="notes.html" data-match="notes.html">随笔</a>
+      <a href="gallery.html" data-match="gallery.html">相片馆</a>
+      <a href="study.html" data-match="study.html">学习</a>
+      <a href="play.html" data-match="play.html">娱乐</a>
+      <a href="about.html" data-match="about.html">关于</a>
+    </nav>
+    <div class="nav-actions">
+      <button class="icon-btn theme-toggle" id="themeToggle" aria-label="切换深浅色主题">
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+          <circle cx="12" cy="12" r="4.2"/>
+          <path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.2 5.2l1.4 1.4M17.4 17.4l1.4 1.4M18.8 5.2l-1.4 1.4M6.6 17.4l-1.4 1.4"/>
+        </svg>
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20.5 14.2A8.5 8.5 0 1 1 9.8 3.5a6.8 6.8 0 0 0 10.7 10.7z"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+  <div class="nav-progress" aria-hidden="true"></div>
+</header>
+
+<div class="page">
+
+  <header class="site-header">
+    <p class="eyebrow">关于</p>
+    <h1 class="page-title">关于</h1>
+    <p class="page-sub">我是谁，这个站是什么，以及常来往的友邻。</p>
+  </header>
+
+  <main class="about">
+
+    <!-- 关于我 -->
+    <section class="ab-card card spot">
+      <div class="ab-me">
+        <img class="ab-avatar" src="avatar.png" alt="言一的头像" width="74" height="74">
+        <div>
+          <h2 class="ab-me-name" style="font-family:var(--serif)">言一</h2>
+          <p class="ab-me-tag">Yán Yī · 言出如一</p>
+        </div>
+      </div>
+      <p>设计师，偶尔写代码。最近在备考六级，也对税务和审计的事情感兴趣——所以学习页里放的都是这些方向的常去之处。</p>
+      <p>相信「写下来才会想明白」，也相信好看的工具会让人更愿意开始做事。这个站就是这两件事的试验田。</p>
+      <div class="ab-socials">
+        <a href="https://github.com/ESAHC-SHEN" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <a href="https://space.bilibili.com/349922207?spm_id_from=333.1007.0.0" target="_blank" rel="noopener noreferrer">B 站</a>
+        <span class="ab-mail" data-copy="247556861@qq.com" title="点击复制邮箱">247556861@qq.com</span>
+      </div>
+    </section>
+
+    <!-- 关于这个站 -->
+    <section class="ab-card card spot">
+      <h2>关于这个站</h2>
+      <p>这里是我的自留地：放长文和碎片，放拍到的光，也放每天要用的工具——日历、天气、番茄钟、白噪音。没有推荐算法，没有信息流，进来就是你看到的一切。</p>
+      <p>技术上它朴素得近乎固执：<b>纯 HTML / CSS / 原生 JavaScript</b>，没有框架，没有构建步骤，托管在 GitHub Pages。番茄钟和待办的数据只存在你自己的浏览器里，不上传任何地方。</p>
+      <p>有一个不那么显眼的设计：<b>全站的主色会随二十四节气流转</b>——春青、夏朱、秋金、冬黛。你现在看到的颜色，就是此刻节气的颜色。</p>
+      <div class="ab-tone" id="abTone" hidden>
+        <span class="ab-tone-dot" id="abToneDot"></span>
+        <div>
+          <b id="abToneName">—</b>
+          <span id="abToneHex">—</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 站点编年史 -->
+    <section class="ab-card card spot">
+      <h2>站点编年史</h2>
+      <ol class="ab-line">
+        <li>
+          <div class="v">BETA 0.4 · 2026 年秋</div>
+          <div class="t"><b>节气主题色</b>上线，全站色调开始随节气流转；新增关于页与友邻板块，补上了自定义 404。</div>
+        </li>
+        <li>
+          <div class="v">BETA 0.3 · 2026 年 9 月</div>
+          <div class="t">新增<b>学习</b>与<b>娱乐</b>两个板块；文章系统落成，页脚印上朱砂印章，埋下两枚彩蛋。</div>
+        </li>
+        <li>
+          <div class="v">BETA 0.2 · 2026 年 9 月</div>
+          <div class="t"><b>日历</b>（农历 / 节气 / 节日）、<b>天气</b>与<b>相片馆</b>上线，Liquid Glass 设计系统定型。</div>
+        </li>
+        <li>
+          <div class="v">BETA 0.1 · 2026 年夏末</div>
+          <div class="t">第一块砖：首页和文章列表。那时还没有印章，也没有节气色。</div>
+        </li>
+      </ol>
+    </section>
+
+    <!-- 友邻 -->
+    <section class="ab-card card spot">
+      <h2>友邻</h2>
+      <p>常来往的朋友们。如果你的站也想挂在这里，发邮件告诉我。</p>
+      <div class="ab-friends">
+        <a class="friend" style="--fc:#BF5AF2" href="https://lhzrg.github.io/" target="_blank" rel="noopener noreferrer">
+          <span class="friend-glyph">梦</span>
+          <span class="friend-info">
+            <b>梦溪村猪咪</b>
+            <span>lhzrg.github.io · 一位好友的站</span>
+          </span>
+          <span class="friend-arrow">↗</span>
+        </a>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <p class="foot-line">© 2026 言一 · <a class="foot-link" href="about.html">关于</a></p>
+    <p class="foot-ver">version <span id="siteVersion">beta 0.40</span></p>
+  </footer>
+
+</div>
+
+<script src="assets/app.js" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  YY.animate('.about .ab-card', 90);
+
+  // 当前节气色小卡
+  if (YY.season) {
+    var box = document.getElementById('abTone');
+    document.getElementById('abToneName').textContent =
+      '此刻：' + YY.season.term + (YY.season.isTermDay ? '（今天交节）' : '');
+    document.getElementById('abToneHex').textContent = YY.season.color;
+    document.getElementById('abToneDot').style.background = YY.season.color;
+    box.hidden = false;
+  }
+});
+</script>
+
+</body>
+</html>
